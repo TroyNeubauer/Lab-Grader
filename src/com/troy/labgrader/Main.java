@@ -1,0 +1,18 @@
+package com.troy.labgrader;
+
+import com.troy.labgrader.email.*;
+
+public class Main {
+	
+	public static void main(String[] args) throws InterruptedException {
+		EmailScanner scanner = new EmailScanner(new EmailListener() {
+			
+			@Override
+			public void onEmail(Email email) {
+				System.out.println(email);
+			}
+		});
+		Thread.sleep(10_000);
+	}
+
+}
