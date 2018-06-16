@@ -9,10 +9,9 @@ public class Main {
 			
 			@Override
 			public void onEmail(Email email) {
-				System.out.println(email);
+				//email.downloadAttachments(new File("C:\\Users\\Troy Neubauer\\Desktop\\Email Test"));
 			}
 		});
-		Thread.sleep(10_000);
 	}
 
 }
