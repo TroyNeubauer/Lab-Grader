@@ -101,9 +101,8 @@ public class EmailScanner implements Runnable {
 				logger.info("From: " + Arrays.toString(message.getFrom()));
 				logger.info("Subject: " + message.getSubject());
 				Email email = Email.fromMessage(message);
-				email.reply("LAB SUBMISSION FAILURE\nLab failed to compile!\n\nPlease re-submit a working lab", true);
+				//email.reply("LAB SUBMISSION FAILURE\nLab failed to compile!\n\nPlease re-submit a working lab", true);
 				listener.onEmail(email);
-				message.setFlag(Flags.Flag.DELETED, true);
 			}
 		} catch (Exception e) {
 			logger.warn("Exception occurred!");
