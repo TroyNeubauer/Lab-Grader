@@ -1,6 +1,6 @@
 package com.troy.labgrader.email;
 
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.mail.*;
@@ -10,7 +10,7 @@ import org.apache.logging.log4j.*;
 public class EmailScanner implements Runnable {
 	private static final Logger logger = LogManager.getLogger();
 
-	private AtomicBoolean running = new AtomicBoolean(false);
+	private AtomicBoolean running = new AtomicBoolean(true);
 
 	private final Thread thread;
 
@@ -22,6 +22,7 @@ public class EmailScanner implements Runnable {
 	private static String host = "pop.gmail.com", port = "995", userName = "autolaulabs@gmail.com", password = "csisfun!!";
 
 	public EmailScanner(EmailListener listener) {
+		this.listener = listener;
 		thread = new Thread(this);
 		thread.setPriority(Thread.MIN_PRIORITY);
 
@@ -49,10 +50,20 @@ public class EmailScanner implements Runnable {
 		// SSL setting
 		properties.setProperty("mail.pop3.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 		properties.setProperty("mail.pop3.socketFactory.fallback", "false");
-		properties.setProperty("mail.pop3.socketFactory.port", String.valueOf(port));
-		logger.trace("Creating email session...");
-		session = Session.getDefaultInstance(properties);
+		properties.setProperty("mail.pop3.socketFactory.port", port);
 
+		// properties.setProperty("mail.smtp.ssl.enable", "true");
+		properties.setProperty("mail.smtp.auth", "true");
+		properties.setProperty("mail.smtp.starttls.enable", "true");
+		properties.setProperty("mail.smtp.host", "smtp.gmail.com");
+		properties.setProperty("mail.smtp.port", "587");
+		logger.trace("Creating email session...");
+		session = Session.getInstance(properties, new javax.mail.Authenticator() {
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(userName, password);
+			}
+		});
+		
 		try {
 			store = session.getStore("pop3");
 			store.connect(userName, password);
@@ -61,31 +72,38 @@ public class EmailScanner implements Runnable {
 			logger.fatal("Unable to connect to the pop3 store!!!");
 			logger.catching(Level.FATAL, e);
 		}
-		try {
-			inbox = store.getFolder("Inbox");
-			if (!inbox.exists())
-				logger.warn("Inbox folder doesn't exist!");
-			inbox.open(Folder.READ_WRITE);
-		} catch (MessagingException e) {
-			e.printStackTrace();
-			logger.fatal("Unable to get the inbox folder!");
-			logger.catching(Level.FATAL, e);
-		}
-		
-
 	}
 
 	private void scan() {
 		try {
-			logger.trace("About to get messages");
-			Message[] messages = inbox.getMessages();
-			logger.trace("Done getting messages");
+			if (inbox != null)
+				inbox.close(true);
+			try {
+				inbox = store.getFolder("Inbox");
+				if (!inbox.exists())
+					logger.warn("Inbox folder doesn't exist!");
+				inbox.open(Folder.READ_WRITE);
+			} catch (MessagingException e) {
+				e.printStackTrace();
+				logger.fatal("Unable to get the inbox folder!");
+				logger.catching(Level.FATAL, e);
+			}
 
+			Message[] messages = inbox.getMessages();
 			for (int i = 0; i < messages.length; i++) {
-				logger.info("From: " + messages[i].getFrom());
-				logger.info("Subject: " + messages[i].getSubject());
-				logger.info("X-mailer: " + messages[i].getHeader("X-mailer"));
-				listener.onEmail(Email.fromMessage(messages[i]));
+				Message message = messages[i];
+				Address[] from = message.getFrom();
+				if(from.length == 1) {
+					if(from[0].toString().equals(userName))
+						continue;
+				}
+				logger.info("Message #" + (i + 1));
+				logger.info("From: " + Arrays.toString(message.getFrom()));
+				logger.info("Subject: " + message.getSubject());
+				Email email = Email.fromMessage(message);
+				email.reply("LAB SUBMISSION FAILURE\nLab failed to compile!\n\nPlease re-submit a working lab", true);
+				listener.onEmail(email);
+				message.setFlag(Flags.Flag.DELETED, true);
 			}
 		} catch (Exception e) {
 			logger.warn("Exception occurred!");
@@ -96,7 +114,7 @@ public class EmailScanner implements Runnable {
 	private void close() {
 		try {
 			inbox.close(true);
-			archive.close(true);
+			// archive.close(true);
 			store.close();
 		} catch (Exception e) {
 			logger.catching(Level.WARN, e);
