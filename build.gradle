@@ -17,6 +17,8 @@ dependencies {
 	compile group: 'io.github.lukehutch', name: 'fast-classpath-scanner', version: '2.9.4'
 	compile group: 'org.ow2.asm', name: 'asm', version: '5.0.3'
 	compile group: 'de.schlichtherle.truezip', name: 'truezip-file', version: '7.7.10'
+	compile group: 'de.schlichtherle.truezip', name: 'truezip-driver-zip', version: '7.7.10'
+	
 	
 
 }
