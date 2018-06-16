@@ -24,4 +24,17 @@ public class EmailUtils {
 		}
 		return result;
 	}
+	
+	public static String getEmail(Address email) {
+		String raw = email.toString();
+		int open = raw.indexOf('<');
+		if (open != -1) {
+			int close = raw.indexOf('>');
+			if (close == -1) {
+				throw new RuntimeException("Email: \"" + raw + "\" doesn't have a closing >!");
+			}
+			return raw.substring(open + 1, close);
+		}
+		return raw;
+	}
 }
