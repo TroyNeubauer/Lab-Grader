@@ -1,16 +1,13 @@
 package com.troy.labgrader;
 
 import java.io.*;
-import java.util.HashMap;
+import java.util.*;
 import java.util.Map.Entry;
 
-import com.esotericsoftware.kryo.io.*;
-
-import de.schlichtherle.truezip.file.*;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class StudentList {
-
-	public static final String STUDENTS_FILE = "students.dat";
 
 	// Maps period numbers to a mapping between student name and student email
 	private HashMap<Integer, HashMap<String, String>> students;
@@ -23,30 +20,55 @@ public class StudentList {
 		return new StudentList(map);
 	}
 
-	public static StudentList fromTroyGradeFile(File file) {
-		TFile studentsFile = new TFile(file, STUDENTS_FILE);
+	public static StudentList fromExcelFile(File file) {
+		HashMap<Integer, HashMap<String, String>> map = new HashMap<Integer, HashMap<String, String>>();
+		FileInputStream stream;
+		XSSFWorkbook workbook = null;
 		try {
-			Input in = new Input(new TFileInputStream(studentsFile));
-			HashMap map = FileUtils.kryo.readObject(in, HashMap.class);
-			in.close();
-			return new StudentList(map);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-	}
+			stream = new FileInputStream(file);
+			workbook = new XSSFWorkbook(stream);
+			Sheet sheet = workbook.getSheetAt(0);
+			try {
+				Row row1 = sheet.getRow(0);
+				System.out.println(row1.getCell(0).getStringCellValue());
+				if (!row1.getCell(0).getStringCellValue().equals("period") || !row1.getCell(1).getStringCellValue().equals("name") || !row1.getCell(2).getStringCellValue().equals("email"))
+					throw new RuntimeException("Missing header!");
+				Iterator<Row> rows = sheet.iterator();
+				while (rows.hasNext()) {
+					Row row = rows.next();
+					if (row.getLastCellNum() != 3)
+						continue;
+					if (row.getCell(0).getCellTypeEnum() != CellType.NUMERIC || row.getCell(1).getCellTypeEnum() != CellType.STRING || row.getCell(2).getCellTypeEnum() != CellType.STRING)
+						continue;
+					int period = (int) row.getCell(0).getNumericCellValue();
+					String name = row.getCell(1).getStringCellValue();
+					String email = row.getCell(2).getStringCellValue();
 
-	public void save(File file) {
-		TFile studentsFile = new TFile(file, STUDENTS_FILE);
-		try {
-			Output out = new Output(new TFileOutputStream(studentsFile));
-			assert students.getClass() == HashMap.class;
-			FileUtils.kryo.writeObject(out, students);
-			out.close();
-		} catch (FileNotFoundException e) {
+					HashMap<String, String> periodMap = map.get(period);
+					if (periodMap == null) {
+						periodMap = new HashMap<String, String>();
+						map.put(period, periodMap);
+					}
+					periodMap.put(name, email);
+				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		} catch (IOException e) {
 			throw new RuntimeException(e);
+		} finally {
+			if (workbook != null) {
+				try {
+					workbook.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-	}
 
+		return new StudentList(map);
+	}
+	
 	public void addStudent(int periodNumber, String name, String email) {
 		HashMap<String, String> period = students.get(periodNumber);
 		if (period == null) {
