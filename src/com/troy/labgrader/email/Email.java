@@ -9,8 +9,6 @@ import javax.mail.internet.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.*;
 
-import de.schlichtherle.truezip.file.*;
-
 public class Email {
 	private static Logger logger = LogManager.getLogger();
 
@@ -42,30 +40,6 @@ public class Email {
 				out.close();
 			} catch (Exception e) {
 				e.printStackTrace();
-			}
-		}
-		return files;
-	}
-
-	public TFile[] downloadAttachments(TFile parentDir) {
-		TFile[] files = new TFile[attachments.size()];
-		int i = 0;
-		for (MimeBodyPart part : attachments) {
-			TFileOutputStream out = null;
-			try {
-				TFile file = new TFile(parentDir, part.getFileName());
-				files[i++] = file;
-				out = new TFileOutputStream(file);
-				IOUtils.copy(part.getInputStream(), out);
-				out.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-				if (out != null)
-					try {
-						out.close();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
 			}
 		}
 		return files;

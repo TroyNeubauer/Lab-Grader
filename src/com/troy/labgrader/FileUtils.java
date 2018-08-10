@@ -1,33 +1,28 @@
 package com.troy.labgrader;
 
 import java.io.*;
-import java.lang.management.OperatingSystemMXBean;
 import java.util.*;
 
 import javax.mail.MessagingException;
 
-import org.apache.logging.log4j.core.appender.rolling.OnStartupTriggeringPolicy;
-
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.*;
 import com.troy.labgrader.email.*;
-
-import de.schlichtherle.truezip.file.*;
-import de.schlichtherle.truezip.fs.FsSyncException;
-import de.schlichtherle.truezip.fs.archive.zip.ZipDriver;
-import de.schlichtherle.truezip.socket.sl.IOPoolLocator;
+import com.troy.labgrader.lab.Year;
 
 public class FileUtils {
 
-	public static final String EXTENSION = "troygrade";
+	public static final String EXTENSION = "zip", FILES_DIRECTORY = "files", APPDATA_FOLDER_NAME = "Troy's Lab Grader";
+	public static final File APPDATA_STORAGE_FOLDER = new File(System.getenv("APPDATA"), APPDATA_FOLDER_NAME);
 	public static final Kryo kryo = new Kryo();
 
 	static {
-		TConfig.get().setArchiveDetector(new TArchiveDetector(EXTENSION, new ZipDriver(IOPoolLocator.SINGLETON)));
+		// TConfig.get().setArchiveDetector(new TArchiveDetector(EXTENSION, new ZipDriver(IOPoolLocator.SINGLETON)));
 	}
 
 	public static String removeBannedCharacters(String part) {
 		switch (OSType.get()) {
-		case Windows://Not allowed characters = /\:*?"<>|
+		case Windows:// Not allowed characters = /\:*?"<>|
 			part = part.replace('/', '.');
 			part = part.replace('\\', '.');
 			part = part.replace(':', '.');
@@ -54,16 +49,17 @@ public class FileUtils {
 		return part;
 	}
 
-	public static void saveEmail(File saveFile, Email email) {
+	public static String toEmailDirectory(String email) {
+		return FileUtils.removeBannedCharacters(email);
+	}
+
+	public static DownloadedEmail saveEmail(Email email) {
 		try {
 			String from = EmailUtils.getEmail(email.getMessage().getFrom()[0]);
-			int i = 1;
-			TFile file;
-			do {
-				file = new TFile(saveFile, "files" + File.separatorChar + FileUtils.removeBannedCharacters(from) + File.separatorChar + Integer.toString(i));
-				i++;
-			} while (file.exists());
-			email.downloadAttachments(new TFile(file, "attachments"));
+			UUID uuid = UUID.randomUUID();
+			File file = new File(APPDATA_STORAGE_FOLDER, toEmailDirectory(from) + File.separatorChar + uuid.toString().replaceAll("-", ""));
+
+			email.downloadAttachments(new File(file, DownloadedEmail.ATTACHMENTS_FOLDER));
 
 			StringBuilder info = new StringBuilder();
 			info.append("from:");
@@ -81,24 +77,82 @@ public class FileUtils {
 			info.append(email.getMessage().getSubject());
 			info.append('\n');
 
-			writeString(new TFile(file, "info.txt"), info.toString());
-			writeString(new TFile(file, "body.txt"), email.getText());
-			TVFS.umount();// Save the archive
+			writeString(file, DownloadedEmail.INFO_NAME, info.toString());
+			writeString(file, DownloadedEmail.BODY_NAME, email.getText());
+			return new DownloadedEmail(file);
 		} catch (MessagingException e) {
-			e.printStackTrace();
-		} catch (FsSyncException e) {
-			e.printStackTrace();
 			throw new RuntimeException(e);
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 
 	}
 
-	private static void writeString(TFile file, String string) throws IOException {
-		file.createNewFile();
-		TFileOutputStream stream = new TFileOutputStream(file);
-		stream.write(string.getBytes());
-		stream.close();
+	private static void writeString(File parent, String fileName, String string) {
+		try {
+			FileWriter writer = new FileWriter(new File(parent, fileName));
+			writer.write(string);
+			writer.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
+
+	public static void write(File file, Object data) {
+		try {
+			FileOutputStream stream = new FileOutputStream(file);
+			write(stream, data);
+			stream.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
+	public static void write(OutputStream stream, Object data) {
+		Output out = new Output(stream);
+		kryo.writeObject(out, data);
+		out.flush();
+	}
+
+	public static <T> T read(File file, Class<T> type) {
+		try {
+			Input in = new Input(new FileInputStream(file));
+			T obj = kryo.readObject(in, type);
+			in.close();
+			return obj;
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	/*
+	 * public static void write(ZipOutputStream stream, String inside, byte[] data) throws IOException { ZipEntry e = new ZipEntry(inside);
+	 * stream.putNextEntry(e);
+	 * 
+	 * stream.write(data, 0, data.length); stream.closeEntry(); }
+	 */
+
+	public static <T> void save(File file, T obj, Class<T> type) {
+		assert obj.getClass() == type.getClass();
+		try {
+			Output out = new Output(new FileOutputStream(file));
+
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/*
+	 * public static void delete(ZipFile file, String[] entryNames) { try { File tempFile = new File(file.getName() + "-" +
+	 * UUID.randomUUID().toString().replaceAll("-", "") + ".temp"); ZipOutputStream stream = new ZipOutputStream(new FileOutputStream(tempFile));
+	 * Enumeration<? extends ZipEntry> e = file.entries(); while (e.hasMoreElements()) { ZipEntry entry = e.nextElement(); boolean copy = true; for
+	 * (String compareName : entryNames) { if (entry.getName().equals(compareName)) { copy = false; break; } } if (copy) {
+	 * stream.putNextEntry(entry); IOUtils.copy(file.getInputStream(entry), stream); stream.closeEntry(); } } stream.close(); } catch (IOException
+	 * e1) { e1.printStackTrace(); } }
+	 */
+	/*
+	 * public static <T> T read(ZipFile file, String entryName, Class<T> type) { ZipEntry entry = file.getEntry(entryName); if (entry == null) throw
+	 * new IllegalArgumentException("Could not find entry: " + entryName); try { Input in = new Input(file.getInputStream(entry)); return
+	 * kryo.readObject(in, type); } catch (IOException e) { throw new RuntimeException(e); }
+	 * 
+	 * }
+	 */
 }
