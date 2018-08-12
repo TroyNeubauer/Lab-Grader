@@ -8,11 +8,10 @@ import javax.mail.MessagingException;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.*;
 import com.troy.labgrader.email.*;
-import com.troy.labgrader.lab.Year;
 
 public class FileUtils {
 
-	public static final String EXTENSION = "zip", FILES_DIRECTORY = "files", APPDATA_FOLDER_NAME = "Troy's Lab Grader";
+	public static final String EXTENSION = "troygrade", FILES_DIRECTORY = "files", APPDATA_FOLDER_NAME = "Troy's Lab Grader";
 	public static final File APPDATA_STORAGE_FOLDER = new File(System.getenv("APPDATA"), APPDATA_FOLDER_NAME);
 	public static final Kryo kryo = new Kryo();
 
@@ -123,6 +122,7 @@ public class FileUtils {
 			throw new RuntimeException(e);
 		}
 	}
+	
 	/*
 	 * public static void write(ZipOutputStream stream, String inside, byte[] data) throws IOException { ZipEntry e = new ZipEntry(inside);
 	 * stream.putNextEntry(e);

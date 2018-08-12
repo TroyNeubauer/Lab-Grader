@@ -4,9 +4,8 @@ import java.io.*;
 import java.nio.channels.*;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-import java.util.zip.*;
 
-import com.troy.labgrader.*;
+import com.troy.labgrader.FileUtils;
 
 public class LabGraderFile implements AutoCloseable {
 
@@ -57,21 +56,37 @@ public class LabGraderFile implements AutoCloseable {
 		if (remove)
 			LIST.remove(this);
 		try {
+			lock.release();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		try {
 			save();
 		} catch (RuntimeException e) {
 			throw e;
 		} finally {// Make sure to clean up everything even if saving fails
-			try {
-				lock.release();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+			
 		}
 	}
 
 	@Override
 	public String toString() {
 		return "LabGraderFile [file=" + file + "]";
+	}
+
+	public static LabGraderFile createNew(File location) {
+		if (!location.exists()) {
+			try {
+				location.getParentFile().mkdirs();
+				location.createNewFile();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		LabGraderFile result = new LabGraderFile(location);
+		result.years = new ArrayList<Year>();
+		return result;
+		
 	}
 
 }

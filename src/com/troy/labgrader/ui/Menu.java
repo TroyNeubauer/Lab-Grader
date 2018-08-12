@@ -10,14 +10,18 @@ public class Menu extends JMenuBar {
 	
 	public Menu(Pane pane) {
 		JMenu file = new JMenu("File");
-		ImageIcon openIcon = null, closeIcon = null;
+		ImageIcon openIcon = null, closeIcon = null, newIcon = null;
 		try {
 			openIcon = new ImageIcon(ImageIO.read(Class.class.getResourceAsStream("/icons/open.png")));
 			closeIcon = new ImageIcon(ImageIO.read(Class.class.getResourceAsStream("/icons/close.png")));
+			newIcon = new ImageIcon(ImageIO.read(Class.class.getResourceAsStream("/icons/new.png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+		JMenuItem newItem = new JMenuItem("New", newIcon);
+		newItem.addActionListener((ActionEvent e) -> {
+			pane.newFile();
+		});
 		JMenuItem open = new JMenuItem("Open", openIcon);
 		open.addActionListener((ActionEvent e) -> {
 			pane.showOpenDialog();
@@ -27,6 +31,7 @@ public class Menu extends JMenuBar {
 		close.addActionListener((ActionEvent e) -> {
 			pane.closeSelectedFile();
 		});
+		file.add(newItem);
 		file.add(open);
 		file.add(close);
 		
