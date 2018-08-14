@@ -1,5 +1,7 @@
 package com.troy.labgrader;
 
+import java.awt.Font;
+
 import javax.swing.UIManager;
 
 import com.troy.labgrader.email.*;
@@ -9,9 +11,9 @@ public class Main {
 
 	public static void main(String[] args) throws Exception {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		
+		UIManager.getLookAndFeelDefaults().put("defaultFont", new Font("Arial", Font.BOLD, 30));
 		Window window = new Window();
-				
+
 		EmailScanner scanner = new EmailScanner(new EmailListener() {
 			@Override
 			public void onEmail(Email email) {
