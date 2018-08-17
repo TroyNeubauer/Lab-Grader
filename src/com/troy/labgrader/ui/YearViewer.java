@@ -1,10 +1,10 @@
-package com.troy.labgrader.lab;
+package com.troy.labgrader.ui;
 
 import java.awt.*;
-import java.awt.event.*;
 
 import javax.swing.*;
 
+import com.troy.labgrader.lab.Year;
 import com.troy.labgrader.ui.*;
 
 public class YearViewer extends JPanel {
@@ -14,9 +14,10 @@ public class YearViewer extends JPanel {
 	private LabGraderFileViewer viewer;
 
 	public YearViewer(Year year, LabGraderFileViewer viewer) {
+		super(new BorderLayout());
 		this.year = year;
 		this.viewer = viewer;
-
+		setBorder(BorderFactory.createTitledBorder("Year"));
 		JButton newCourse = new JButton("New Course");
 		newCourse.addActionListener((e) -> showNewCourseDialog());
 		bottom.add(newCourse);
@@ -29,6 +30,7 @@ public class YearViewer extends JPanel {
 		bottom.add(editName);
 
 		pane.addTab("Students List", new StudentsListViewer(year.getStudents()));
+		pane.setBorder(BorderFactory.createTitledBorder("Courses"));
 
 		add(bottom, BorderLayout.SOUTH);
 		add(pane, BorderLayout.NORTH);
