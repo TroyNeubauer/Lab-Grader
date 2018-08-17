@@ -12,6 +12,10 @@ public class StudentList {
 	// Maps period numbers to a mapping between student name and student email
 	private HashMap<Integer, HashMap<String, String>> students;
 
+	public StudentList() {
+		students = new HashMap<Integer, HashMap<String, String>>();
+	}
+
 	public StudentList(HashMap<Integer, HashMap<String, String>> students) {
 		this.students = students;
 	}
@@ -68,7 +72,7 @@ public class StudentList {
 
 		return new StudentList(map);
 	}
-	
+
 	public void addStudent(int periodNumber, String name, String email) {
 		HashMap<String, String> period = students.get(periodNumber);
 		if (period == null) {
@@ -94,5 +98,9 @@ public class StudentList {
 				return entry.getKey();
 		}
 		return -1;
+	}
+
+	public HashMap<Integer, HashMap<String, String>> getStudents() {
+		return students;
 	}
 }

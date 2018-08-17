@@ -12,13 +12,12 @@ public class Window extends JFrame {
 	public Window() {
 		super(TITLE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(1440, 810);
-		setLocationRelativeTo(null);
 
 		add();
 		addListeners();
 
-		pack();
+		setSize(1440, 810);
+		setLocationRelativeTo(null);
 		setVisible(true);
 		//pane.showOpenDialog();
 	}

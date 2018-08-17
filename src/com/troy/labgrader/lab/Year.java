@@ -8,7 +8,7 @@ public class Year {
 	public static final String YEARS_FILE = "years.dat";
 
 	private List<Course> courses;
-	private StudentList students;
+	private StudentList students = new StudentList();
 	private String name;
 
 	public Year(List<Course> courses, String name) {

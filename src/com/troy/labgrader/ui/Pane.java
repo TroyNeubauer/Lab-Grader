@@ -35,15 +35,15 @@ public class Pane extends JTabbedPane {
 	}
 
 	public void openFile(File file) {
-		try {
+		/*try {*/
 			int index = getTabCount();
 			if (file == null)
 				return;
 			insertTab(file.getName(), null, new LabGraderFileViewer(file), null, index);
 			setSelectedIndex(index);
-		} catch (Exception e) {
+		/*} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Error reading file:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-		}
+		}*/
 	}
 
 	public void showOpenDialog() {
@@ -73,7 +73,7 @@ public class Pane extends JTabbedPane {
 	}
 
 	public void newFile() {
-		try {
+		/*try {*/
 			int index = getTabCount();
 			JFileChooser chooser = new JFileChooser();
 			chooser.setDialogTitle("Save New File");
@@ -99,8 +99,8 @@ public class Pane extends JTabbedPane {
 
 			insertTab(file.getName(), null, new LabGraderFileViewer(LabGraderFile.createNew(file)), null, index);
 			setSelectedIndex(index);
-		} catch (Exception e) {
+		/*} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Error reading file:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-		}
+		}*/
 	}
 }
