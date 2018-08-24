@@ -4,6 +4,8 @@ import java.awt.event.*;
 
 import javax.swing.JFrame;
 
+import com.troy.labgrader.Main;
+
 public class Window extends JFrame {
 	private static final String TITLE = "Troy's Lab Viewer";
 
@@ -19,9 +21,9 @@ public class Window extends JFrame {
 		setSize(1440, 810);
 		setLocationRelativeTo(null);
 		setVisible(true);
-		//pane.showOpenDialog();
+		// pane.showOpenDialog();
 	}
-	
+
 	private void add() {
 		pane = new Pane();
 		add(pane);
@@ -37,5 +39,15 @@ public class Window extends JFrame {
 		});
 	}
 
-	
+	public static LabGraderFileViewer getOpenFile() {
+		return Main.window.pane.getSelectedComponent();
+	}
+
+	public static YearViewer getOpenYear() {
+		LabGraderFileViewer view = Main.window.pane.getSelectedComponent();
+		if (view == null)
+			return null;
+		return view.getOpenYear();
+	}
+
 }

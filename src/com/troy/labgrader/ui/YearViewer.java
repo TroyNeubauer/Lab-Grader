@@ -4,8 +4,8 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import com.troy.labgrader.lab.Year;
-import com.troy.labgrader.ui.*;
+import com.troy.labgrader.Utils;
+import com.troy.labgrader.lab.*;
 
 public class YearViewer extends JPanel {
 	private Year year;
@@ -24,7 +24,7 @@ public class YearViewer extends JPanel {
 
 		JButton editName = new JButton("Edit Year Name");
 		editName.addActionListener((e) -> {
-			String s = (String) JOptionPane.showInputDialog(this, "Enter new name for the year \"" + year.getName() + "\".", "Edit Name", JOptionPane.INFORMATION_MESSAGE, null, null, null);
+			String s = Utils.getUserString(this, "Enter new name for the year \"" + year.getName() + "\".", "Edit Name", JOptionPane.INFORMATION_MESSAGE);
 			System.out.println("entered: " + s);
 		});
 		bottom.add(editName);
@@ -39,6 +39,13 @@ public class YearViewer extends JPanel {
 	protected void setYearName(String name) {
 		year.setName(name);
 		viewer.getPane().setTitleAt(viewer.getPane().getSelectedIndex(), name);
+	}
+	
+	public void addCourse(Course course, boolean add) {
+		if(add)
+			year.getCourses().add(course);
+		pane.addTab(course.getName(), new CourseViewer(course));
+		
 	}
 
 	private void showNewCourseDialog() {
