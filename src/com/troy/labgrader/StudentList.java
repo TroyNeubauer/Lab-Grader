@@ -10,18 +10,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class StudentList {
 
 	// Maps period numbers to a mapping between student name and student email
-	private HashMap<Integer, HashMap<String, String>> students;
+	private List<Student> students;
 
 	public StudentList() {
-		students = new HashMap<Integer, HashMap<String, String>>();
+		students = new ArrayList();
 	}
 
-	public StudentList(HashMap<Integer, HashMap<String, String>> students) {
+	public StudentList(ArrayList<Student> students) {
 		this.students = students;
-	}
-
-	public static StudentList fromMap(HashMap<Integer, HashMap<String, String>> map) {
-		return new StudentList(map);
 	}
 
 	public static StudentList fromExcelFile(File file) {

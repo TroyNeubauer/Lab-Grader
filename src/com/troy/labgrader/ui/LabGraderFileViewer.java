@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 
+import com.troy.labgrader.Utils;
 import com.troy.labgrader.lab.*;
 
 public class LabGraderFileViewer extends JPanel {
@@ -39,7 +40,8 @@ public class LabGraderFileViewer extends JPanel {
 	}
 
 	private void showNewYearDialog() {
-		addYear(new Year(new ArrayList<>(), "New Year"), true);
+		String name = Utils.getUserString(this, "Enter new name for the new year", "Set Name", JOptionPane.INFORMATION_MESSAGE);
+		addYear(new Year(new ArrayList<>(), name), true);
 	}
 
 	public LabGraderFileViewer(File file) {
@@ -60,6 +62,14 @@ public class LabGraderFileViewer extends JPanel {
 
 	public JTabbedPane getPane() {
 		return pane;
+	}
+
+	public YearViewer getOpenYear() {
+		int index = pane.getSelectedIndex();
+		if (index == -1) {
+			return null;
+		}
+		return (YearViewer) pane.getComponentAt(index);
 	}
 
 }
