@@ -19,7 +19,7 @@ public class Main {
 		list.add(new Student(5, "Troy Neubauer", "troyneubauer@gmail.com"));
 		JFrame test = new JFrame();
 		test.add(new JScrollPane(new JTable(new FieldTabel<>(list, Student.class))));
-		
+		test.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		test.setSize(1440, 810);
 		test.setLocationRelativeTo(null);
 		test.setVisible(true);
