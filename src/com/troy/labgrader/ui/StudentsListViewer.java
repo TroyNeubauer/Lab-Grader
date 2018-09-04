@@ -27,7 +27,7 @@ public class StudentsListViewer extends JPanel {
 		JTextField email = new JTextField(40);
 		JButton add = new JButton("Add");
 		add.addActionListener((a) -> {
-			int p = Utils.getInt(peroid.getText());
+			long p = Utils.getInt(peroid.getText());
 			String n = name.getText();
 			String e = email.getText();
 			if (p == Utils.INVALID_STRING) {

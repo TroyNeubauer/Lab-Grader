@@ -4,10 +4,19 @@ import java.awt.event.*;
 
 import javax.swing.JFrame;
 
-import com.troy.labgrader.Main;
+import com.troy.labgrader.*;
+import com.troy.labgrader.Displays.DisplaysListener;
 
-public class Window extends JFrame {
+public class Window extends JFrame implements DisplaysListener {
 	private static final String TITLE = "Troy's Lab Viewer";
+
+	@Override
+	public void onUpdate(String variable, Object value) {
+		if (variable.equals(Displays.CONNECTED)) {
+			((Boolean) value).booleanValue();
+			
+		}
+	}
 
 	private Pane pane;
 
