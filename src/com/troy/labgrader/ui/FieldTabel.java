@@ -3,7 +3,7 @@ package com.troy.labgrader.ui;
 import java.lang.reflect.*;
 import java.util.*;
 
-import javax.swing.event.TableModelListener;
+import javax.swing.event.*;
 import javax.swing.table.TableModel;
 
 import com.troy.labgrader.*;
@@ -15,7 +15,7 @@ public class FieldTabel<T> implements TableModel {
 	private List<T> data;
 	private Field[] fields;
 	private Class<T> type;
-	private int furthestRow;
+	private List<TableModelListener> listeners = new ArrayList<TableModelListener>();
 
 	public FieldTabel(List<T> data, Class<T> type) {
 		this.data = Objects.requireNonNull(data);
@@ -30,12 +30,12 @@ public class FieldTabel<T> implements TableModel {
 		}
 		fields = new Field[temp.size()];
 		temp.toArray(fields);
-		//System.out.println(Arrays.toString(fields));
+		// System.out.println(Arrays.toString(fields));
 	}
 
 	@Override
 	public int getRowCount() {
-		return furthestRow + 2;
+		return data.size();
 	}
 
 	@Override
@@ -66,10 +66,9 @@ public class FieldTabel<T> implements TableModel {
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		boolean quit = rowIndex == data.size();
-		checkRow(rowIndex);
 		if (quit)
 			return null;
-		//System.out.println("get [" + rowIndex + ", " + columnIndex + "]");
+		// System.out.println("get [" + rowIndex + ", " + columnIndex + "]");
 		try {
 			T obj = data.get(rowIndex);
 			return fields[columnIndex].get(obj);
@@ -78,37 +77,35 @@ public class FieldTabel<T> implements TableModel {
 		}
 	}
 
-	private void checkRow(int row) {
-		if (row == data.size()) {
+	public void addRow() {
+		try {
+			data.add(type.newInstance());
+		} catch (InstantiationException | IllegalAccessException e) {
+			// System.out.println("throring: " + MiscUtil.getStackTrace(e));
 			try {
-				data.add(type.newInstance());
-				return;
-			} catch (InstantiationException | IllegalAccessException e) {
-				//System.out.println("throring: " + MiscUtil.getStackTrace(e));
-				try {
-					data.add(MiscUtil.newInstanceUsingAConstructor(type));
-					return;
-				} catch (RuntimeException e2) {
-					//System.out.println("throring again: " + MiscUtil.getStackTrace(e2));
-					if (MiscUtil.isUnsafeSupported()) {
-						try {
-							data.add((T) MiscUtil.getUnsafe().allocateInstance(type));
-							return;
-						} catch (Exception e3) {
-							throw new RuntimeException(e3);
-						}
+				data.add(MiscUtil.newInstanceUsingAConstructor(type));
+				
+			} catch (RuntimeException e2) {
+				// System.out.println("throring again: " + MiscUtil.getStackTrace(e2));
+				if (MiscUtil.isUnsafeSupported()) {
+					try {
+						data.add((T) MiscUtil.getUnsafe().allocateInstance(type));
+					} catch (Exception e3) {
+						throw new RuntimeException(e3);
 					}
-					throw new RuntimeException(e2);
 				}
+				throw new RuntimeException(e2);
 			}
+		}
+		TableModelEvent event = new TableModelEvent(this, data.size() - 1, data.size(), 0, TableModelEvent.INSERT);
+		for(TableModelListener l : listeners) {
+			l.tableChanged(event);
 		}
 	}
 
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		// System.out.println("set [" + rowIndex + ", " + columnIndex + "]: " + aValue);
-		checkRow(rowIndex);
-		furthestRow = Math.max(furthestRow, rowIndex);
 		try {
 			T obj = data.get(rowIndex);
 			Field f = fields[columnIndex];
@@ -190,6 +187,10 @@ public class FieldTabel<T> implements TableModel {
 			} else {
 				f.set(obj, aValue);
 			}
+			TableModelEvent event = new TableModelEvent(this, rowIndex, rowIndex, columnIndex, TableModelEvent.UPDATE);
+			for(TableModelListener l : listeners) {
+				l.tableChanged(event);
+			}
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
@@ -197,11 +198,12 @@ public class FieldTabel<T> implements TableModel {
 
 	@Override
 	public void addTableModelListener(TableModelListener l) {
-		System.out.println("add listener");
+		listeners.add(l);
 	}
 
 	@Override
 	public void removeTableModelListener(TableModelListener l) {
+		listeners.remove(l);
 	}
 
 }

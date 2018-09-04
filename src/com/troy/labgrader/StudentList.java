@@ -2,9 +2,9 @@ package com.troy.labgrader;
 
 import java.io.*;
 import java.util.*;
-import java.util.Map.Entry;
 
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.troy.labgrader.email.Student;
@@ -18,87 +18,31 @@ public class StudentList {
 		students = new ArrayList();
 	}
 
-	public StudentList(ArrayList<Student> students) {
+	public StudentList(List<Student> students) {
 		this.students = students;
 	}
 
-	public static StudentList fromExcelFile(File file) {
-		HashMap<Integer, HashMap<String, String>> map = new HashMap<Integer, HashMap<String, String>>();
-		FileInputStream stream;
-		XSSFWorkbook workbook = null;
-		try {
-			stream = new FileInputStream(file);
-			workbook = new XSSFWorkbook(stream);
-			Sheet sheet = workbook.getSheetAt(0);
-			try {
-				Row row1 = sheet.getRow(0);
-				System.out.println(row1.getCell(0).getStringCellValue());
-				if (!row1.getCell(0).getStringCellValue().equals("period") || !row1.getCell(1).getStringCellValue().equals("name") || !row1.getCell(2).getStringCellValue().equals("email"))
-					throw new RuntimeException("Missing header!");
-				Iterator<Row> rows = sheet.iterator();
-				while (rows.hasNext()) {
-					Row row = rows.next();
-					if (row.getLastCellNum() != 3)
-						continue;
-					if (row.getCell(0).getCellTypeEnum() != CellType.NUMERIC || row.getCell(1).getCellTypeEnum() != CellType.STRING || row.getCell(2).getCellTypeEnum() != CellType.STRING)
-						continue;
-					int period = (int) row.getCell(0).getNumericCellValue();
-					String name = row.getCell(1).getStringCellValue();
-					String email = row.getCell(2).getStringCellValue();
-
-					HashMap<String, String> periodMap = map.get(period);
-					if (periodMap == null) {
-						periodMap = new HashMap<String, String>();
-						map.put(period, periodMap);
-					}
-					periodMap.put(name, email);
-				}
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} finally {
-			if (workbook != null) {
-				try {
-					workbook.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-
-		return new StudentList(map);
-	}
-
 	public void addStudent(int periodNumber, String name, String email) {
-		HashMap<String, String> period = students.get(periodNumber);
-		if (period == null) {
-			period = new HashMap<String, String>();
-			students.put(periodNumber, period);
-		}
-		period.put(name, email);
+		students.add(new Student(periodNumber, name, email));
 	}
 
 	public int getPeriodWithName(String name) {
-		for (Entry<Integer, HashMap<String, String>> entry : students.entrySet()) {
-			HashMap<String, String> period = entry.getValue();
-			if (period.containsKey(name))
-				return entry.getKey();
+		for (Student s : students) {
+			if (s.getName().equals(name))
+				return s.getPeriod();
 		}
 		return -1;
 	}
 
 	public int getPeriodWithEmail(String email) {
-		for (Entry<Integer, HashMap<String, String>> entry : students.entrySet()) {
-			HashMap<String, String> period = entry.getValue();
-			if (period.containsValue(email))
-				return entry.getKey();
+		for (Student s : students) {
+			if (s.getEmail().equals(email))
+				return s.getPeriod();
 		}
 		return -1;
 	}
 
-	public HashMap<Integer, HashMap<String, String>> getStudents() {
+	public List<Student> getStudents() {
 		return students;
 	}
 }
