@@ -14,13 +14,13 @@ public class Window extends JFrame implements DisplaysListener {
 	public void onUpdate(String variable, Object value) {
 		if (variable.equals(Displays.CONNECTED)) {
 			((Boolean) value).booleanValue();
-			
+
 		}
 	}
 
-	private Pane pane;
+	private LabGraderFileViewer file;
 
-	public Window() {
+	public Window(LabGraderFileViewer file) {
 		super(TITLE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -34,16 +34,14 @@ public class Window extends JFrame implements DisplaysListener {
 	}
 
 	private void add() {
-		pane = new Pane();
-		add(pane);
-		setJMenuBar(new Menu(pane));
+		setJMenuBar(new Menu(this));
 	}
 
 	private void addListeners() {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				pane.close();
+				//pane.close();
 			}
 		});
 	}

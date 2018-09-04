@@ -29,6 +29,7 @@ public class Utils {
 				int nameIndex = findCol(row1, "name");
 				int emailIndex = findCol(row1, "email");
 				int periodIndex = findCol(row1, "period");
+				int idIndex = findCol(row1, "id");
 				if (nameIndex == -1 || emailIndex == -1 || periodIndex == -1)
 					throw new RuntimeException("Missing header!");
 				Iterator<Row> rows = sheet.iterator();
@@ -39,6 +40,7 @@ public class Utils {
 					Cell nameCell = row.getCell(nameIndex);
 					Cell emailCell = row.getCell(emailIndex);
 					Cell periodCell = row.getCell(periodIndex);
+					Cell idCell = row.getCell(idIndex);
 					if (nameCell == null || emailCell == null || periodCell == null)
 						continue;
 
@@ -47,7 +49,8 @@ public class Utils {
 					int period = (int) periodCell.getNumericCellValue();
 					String name = nameCell.getStringCellValue();
 					String email = emailCell.getStringCellValue();
-					students.add(new Student(period, name, email));
+					int id = (int) idCell.getNumericCellValue();
+					students.add(new Student(period, name, email, id));
 				}
 			} catch (Exception e) {
 				throw new RuntimeException(e);

@@ -4,12 +4,13 @@ public class Student {
 	private int period;
 	private String name;
 	private String email;
+	private int id;
 
-	public Student(int period, String name, String email) {
-		super();
+	public Student(int period, String name, String email, int id) {
 		this.period = period;
 		this.name = name;
 		this.email = email;
+		this.id = id;
 	}
 
 	public int getPeriod() {
@@ -36,11 +37,17 @@ public class Student {
 		this.email = email;
 	}
 
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	@Override
 	public String toString() {
 		return "Student [period=" + period + ", name=" + name + ", email=" + email + "]";
 	}
-	
-	
 
 }

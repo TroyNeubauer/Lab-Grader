@@ -298,7 +298,7 @@ public class MiscUtil {
 				try {
 					field.setAccessible(true);
 					Unsafe cast = (Unsafe) field.get(null);
-					//System.err.println("Successfully retrived Unsafe instance. Avilable for use with MiscUtil.getUnsafe()");
+					// System.err.println("Successfully retrived Unsafe instance. Avilable for use with MiscUtil.getUnsafe()");
 					return cast;
 				} catch (ClassCastException e) {
 					// Ignore, there might be other static fields
@@ -674,4 +674,33 @@ public class MiscUtil {
 			throw new RuntimeException(e);
 		}
 	}
+
+	public static int sizeof(Class dataType) {
+		if (dataType == null) {
+			throw new NullPointerException();
+		}
+		if (dataType == byte.class || dataType == Byte.class) {
+			return Byte.BYTES;
+		}
+		if (dataType == short.class || dataType == Short.class) {
+			return Short.BYTES;
+		}
+		if (dataType == char.class || dataType == Character.class) {
+			return Character.BYTES;
+		}
+		if (dataType == int.class || dataType == Integer.class) {
+			return Integer.BYTES;
+		}
+		if (dataType == long.class || dataType == Long.class) {
+			return Long.BYTES;
+		}
+		if (dataType == float.class || dataType == Float.class) {
+			return Float.BYTES;
+		}
+		if (dataType == double.class || dataType == Double.class) {
+			return Double.BYTES;
+		}
+		return 4; // default for 32-bit memory pointer
+	}
+
 }

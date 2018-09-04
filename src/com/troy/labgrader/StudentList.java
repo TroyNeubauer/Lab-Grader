@@ -22,8 +22,8 @@ public class StudentList {
 		this.students = students;
 	}
 
-	public void addStudent(int periodNumber, String name, String email) {
-		students.add(new Student(periodNumber, name, email));
+	public void addStudent(int periodNumber, String name, String email, int id) {
+		students.add(new Student(periodNumber, name, email, id));
 	}
 
 	public int getPeriodWithName(String name) {

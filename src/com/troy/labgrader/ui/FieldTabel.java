@@ -1,14 +1,14 @@
 package com.troy.labgrader.ui;
 
-import java.lang.reflect.*;
+import static java.lang.reflect.Modifier.*;
+
+import java.lang.reflect.Field;
 import java.util.*;
 
 import javax.swing.event.*;
-import javax.swing.table.TableModel;
+import javax.swing.table.*;
 
 import com.troy.labgrader.*;
-
-import static java.lang.reflect.Modifier.*;
 
 public class FieldTabel<T> implements TableModel {
 
@@ -18,10 +18,12 @@ public class FieldTabel<T> implements TableModel {
 	private List<TableModelListener> listeners = new ArrayList<TableModelListener>();
 
 	public FieldTabel(List<T> data, Class<T> type) {
+		super();
 		this.data = Objects.requireNonNull(data);
 		this.type = Objects.requireNonNull(type);
 		Field[] rawFields = type.getDeclaredFields();
 		ArrayList<Field> temp = new ArrayList<Field>();
+		int i = 0;
 		for (Field f : rawFields) {
 			if (!isTransient(f.getModifiers())) {
 				temp.add(f);
@@ -84,7 +86,7 @@ public class FieldTabel<T> implements TableModel {
 			// System.out.println("throring: " + MiscUtil.getStackTrace(e));
 			try {
 				data.add(MiscUtil.newInstanceUsingAConstructor(type));
-				
+
 			} catch (RuntimeException e2) {
 				// System.out.println("throring again: " + MiscUtil.getStackTrace(e2));
 				if (MiscUtil.isUnsafeSupported()) {
@@ -97,9 +99,13 @@ public class FieldTabel<T> implements TableModel {
 				throw new RuntimeException(e2);
 			}
 		}
-		TableModelEvent event = new TableModelEvent(this, data.size() - 1, data.size(), 0, TableModelEvent.INSERT);
-		for(TableModelListener l : listeners) {
-			l.tableChanged(event);
+		fireEvent(new TableModelEvent(this, data.size() - 1, data.size(), 0, TableModelEvent.INSERT));
+
+	}
+
+	private void fireEvent(TableModelEvent e) {
+		for (TableModelListener l : listeners) {
+			l.tableChanged(e);
 		}
 	}
 
@@ -187,10 +193,7 @@ public class FieldTabel<T> implements TableModel {
 			} else {
 				f.set(obj, aValue);
 			}
-			TableModelEvent event = new TableModelEvent(this, rowIndex, rowIndex, columnIndex, TableModelEvent.UPDATE);
-			for(TableModelListener l : listeners) {
-				l.tableChanged(event);
-			}
+			fireEvent(new TableModelEvent(this, rowIndex, rowIndex, columnIndex, TableModelEvent.UPDATE));
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
@@ -204,6 +207,11 @@ public class FieldTabel<T> implements TableModel {
 	@Override
 	public void removeTableModelListener(TableModelListener l) {
 		listeners.remove(l);
+	}
+
+	public void add(T t) {
+		data.add(t);
+		fireEvent(new TableModelEvent(this, data.size() - 1, data.size(), 0, TableModelEvent.INSERT));
 	}
 
 }
