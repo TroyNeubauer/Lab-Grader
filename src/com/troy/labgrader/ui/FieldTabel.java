@@ -6,7 +6,7 @@ import java.util.*;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
-import com.troy.labgrader.Utils;
+import com.troy.labgrader.*;
 
 import static java.lang.reflect.Modifier.*;
 
@@ -15,6 +15,7 @@ public class FieldTabel<T> implements TableModel {
 	private List<T> data;
 	private Field[] fields;
 	private Class<T> type;
+	private int furthestRow;
 
 	public FieldTabel(List<T> data, Class<T> type) {
 		this.data = Objects.requireNonNull(data);
@@ -29,12 +30,12 @@ public class FieldTabel<T> implements TableModel {
 		}
 		fields = new Field[temp.size()];
 		temp.toArray(fields);
-		System.out.println(Arrays.toString(fields));
+		//System.out.println(Arrays.toString(fields));
 	}
 
 	@Override
 	public int getRowCount() {
-		return data.size() + 1;
+		return furthestRow + 2;
 	}
 
 	@Override
@@ -64,7 +65,11 @@ public class FieldTabel<T> implements TableModel {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		System.out.println("get [" + rowIndex + ", " + columnIndex + "]");
+		boolean quit = rowIndex == data.size();
+		checkRow(rowIndex);
+		if (quit)
+			return null;
+		//System.out.println("get [" + rowIndex + ", " + columnIndex + "]");
 		try {
 			T obj = data.get(rowIndex);
 			return fields[columnIndex].get(obj);
@@ -73,22 +78,42 @@ public class FieldTabel<T> implements TableModel {
 		}
 	}
 
-	@Override
-	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-		//System.out.println("set [" + rowIndex + ", " + columnIndex + "]: " + aValue);
-		if(rowIndex == data.size()) {
+	private void checkRow(int row) {
+		if (row == data.size()) {
 			try {
 				data.add(type.newInstance());
+				return;
 			} catch (InstantiationException | IllegalAccessException e) {
-				data.add();
-				throw new RuntimeException(e);
+				//System.out.println("throring: " + MiscUtil.getStackTrace(e));
+				try {
+					data.add(MiscUtil.newInstanceUsingAConstructor(type));
+					return;
+				} catch (RuntimeException e2) {
+					//System.out.println("throring again: " + MiscUtil.getStackTrace(e2));
+					if (MiscUtil.isUnsafeSupported()) {
+						try {
+							data.add((T) MiscUtil.getUnsafe().allocateInstance(type));
+							return;
+						} catch (Exception e3) {
+							throw new RuntimeException(e3);
+						}
+					}
+					throw new RuntimeException(e2);
+				}
 			}
 		}
+	}
+
+	@Override
+	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+		// System.out.println("set [" + rowIndex + ", " + columnIndex + "]: " + aValue);
+		checkRow(rowIndex);
+		furthestRow = Math.max(furthestRow, rowIndex);
 		try {
 			T obj = data.get(rowIndex);
 			Field f = fields[columnIndex];
 			Class<?> c = f.getType();
-			//System.out.println("Type " + c);
+			// System.out.println("Type " + c);
 			if (c.isPrimitive()) {
 				if (c == byte.class) {
 					if (aValue instanceof String) {
