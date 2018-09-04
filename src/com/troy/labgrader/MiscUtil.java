@@ -298,7 +298,7 @@ public class MiscUtil {
 				try {
 					field.setAccessible(true);
 					Unsafe cast = (Unsafe) field.get(null);
-					System.err.println("Successfully retrived Unsafe instance. Avilable for use with MiscUtil.getUnsafe()");
+					//System.err.println("Successfully retrived Unsafe instance. Avilable for use with MiscUtil.getUnsafe()");
 					return cast;
 				} catch (ClassCastException e) {
 					// Ignore, there might be other static fields
