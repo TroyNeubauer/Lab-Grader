@@ -16,8 +16,9 @@ public class Main {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		UIManager.getLookAndFeelDefaults().put("defaultFont", new Font("Arial", Font.BOLD, 30));
 		List<Student> list = new ArrayList();
+		list.add(new Student(5, "Troy Neubauer", "troyneubauer@gmail.com"));
 		JFrame test = new JFrame();
-		test.add(new JTable(new FieldTabel<>(list, Student.class)));
+		test.add(new JScrollPane(new JTable(new FieldTabel<>(list, Student.class))));
 		
 		test.setSize(1440, 810);
 		test.setLocationRelativeTo(null);
