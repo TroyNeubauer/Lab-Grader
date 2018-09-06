@@ -4,6 +4,10 @@ import java.io.*;
 import java.util.*;
 
 import javax.mail.MessagingException;
+import javax.swing.filechooser.FileFilter;
+
+import org.objenesis.instantiator.ObjectInstantiator;
+import org.objenesis.strategy.InstantiatorStrategy;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.*;
@@ -15,8 +19,53 @@ public class FileUtils {
 	public static final File APPDATA_STORAGE_FOLDER = new File(System.getenv("APPDATA"), APPDATA_FOLDER_NAME);
 	public static final Kryo kryo = new Kryo();
 
+	static class MyFileFilter extends FileFilter {
+
+		@Override
+		public String getDescription() {
+			return "troygrade";
+		}
+
+		@Override
+		public boolean accept(File f) {
+			if (f == null)
+				return false;
+			//System.out.println("is good file: " + MiscUtil.getExtension(f.getPath()).equals(FileUtils.EXTENSION) + " ext " + MiscUtil.getExtension(f.getPath()));
+			return f.isDirectory() || MiscUtil.getExtension(f.getPath()).equals(FileUtils.EXTENSION);
+		}
+	}
+
 	static {
-		// TConfig.get().setArchiveDetector(new TArchiveDetector(EXTENSION, new ZipDriver(IOPoolLocator.SINGLETON)));
+		kryo.setInstantiatorStrategy(new InstantiatorStrategy() {
+
+			@Override
+			public <T> ObjectInstantiator<T> newInstantiatorOf(Class<T> type) {
+
+				return new ObjectInstantiator<T>() {
+
+					@Override
+					public T newInstance() {
+						if (MiscUtil.isUnsafeSupported()) {
+							try {
+								return (T) MiscUtil.getUnsafe().allocateInstance(type);
+							} catch (InstantiationException e) {
+								throw new RuntimeException(e);
+							}
+						} else {
+							try {
+								return type.newInstance();
+							} catch (Exception e) {
+								try {
+									return MiscUtil.newInstanceUsingAConstructor(type);
+								} catch (Exception e2) {
+									throw new Error("All instantition stratgies failed...\nError 1:\n" + MiscUtil.getStackTrace(e) + "\n\nError2:\n" + MiscUtil.getStackTrace(e2));
+								}
+							}
+						}
+					}
+				};
+			}
+		});
 	}
 
 	public static String removeBannedCharacters(String part) {
@@ -122,37 +171,4 @@ public class FileUtils {
 			throw new RuntimeException(e);
 		}
 	}
-	
-	/*
-	 * public static void write(ZipOutputStream stream, String inside, byte[] data) throws IOException { ZipEntry e = new ZipEntry(inside);
-	 * stream.putNextEntry(e);
-	 * 
-	 * stream.write(data, 0, data.length); stream.closeEntry(); }
-	 */
-
-	public static <T> void save(File file, T obj, Class<T> type) {
-		assert obj.getClass() == type.getClass();
-		try {
-			Output out = new Output(new FileOutputStream(file));
-
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/*
-	 * public static void delete(ZipFile file, String[] entryNames) { try { File tempFile = new File(file.getName() + "-" +
-	 * UUID.randomUUID().toString().replaceAll("-", "") + ".temp"); ZipOutputStream stream = new ZipOutputStream(new FileOutputStream(tempFile));
-	 * Enumeration<? extends ZipEntry> e = file.entries(); while (e.hasMoreElements()) { ZipEntry entry = e.nextElement(); boolean copy = true; for
-	 * (String compareName : entryNames) { if (entry.getName().equals(compareName)) { copy = false; break; } } if (copy) {
-	 * stream.putNextEntry(entry); IOUtils.copy(file.getInputStream(entry), stream); stream.closeEntry(); } } stream.close(); } catch (IOException
-	 * e1) { e1.printStackTrace(); } }
-	 */
-	/*
-	 * public static <T> T read(ZipFile file, String entryName, Class<T> type) { ZipEntry entry = file.getEntry(entryName); if (entry == null) throw
-	 * new IllegalArgumentException("Could not find entry: " + entryName); try { Input in = new Input(file.getInputStream(entry)); return
-	 * kryo.readObject(in, type); } catch (IOException e) { throw new RuntimeException(e); }
-	 * 
-	 * }
-	 */
 }
