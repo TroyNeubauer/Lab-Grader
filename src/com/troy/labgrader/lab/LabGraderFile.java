@@ -11,7 +11,6 @@ public class LabGraderFile implements AutoCloseable {
 
 	private ArrayList<Year> years;
 
-	private FileLock lock;
 	private File file;
 
 	public static final List<LabGraderFile> LIST = new ArrayList<LabGraderFile>();
@@ -27,7 +26,8 @@ public class LabGraderFile implements AutoCloseable {
 		LIST.add(this);
 		this.file = file;
 		try {
-			lock = FileChannel.open(file.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE).lock();
+			if (file.exists())
+				file.createNewFile();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -56,16 +56,11 @@ public class LabGraderFile implements AutoCloseable {
 		if (remove)
 			LIST.remove(this);
 		try {
-			lock.release();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		try {
 			save();
 		} catch (RuntimeException e) {
 			throw e;
 		} finally {// Make sure to clean up everything even if saving fails
-			
+
 		}
 	}
 
@@ -86,7 +81,7 @@ public class LabGraderFile implements AutoCloseable {
 		LabGraderFile result = new LabGraderFile(location);
 		result.years = new ArrayList<Year>();
 		return result;
-		
+
 	}
 
 }

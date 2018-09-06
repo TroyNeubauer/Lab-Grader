@@ -1,23 +1,66 @@
 package com.troy.labgrader;
 
+import java.io.File;
+
+import javax.swing.*;
+
+import org.apache.commons.io.FilenameUtils;
+
 import com.troy.labgrader.email.*;
-import com.troy.labgrader.ui.Window;
+import com.troy.labgrader.lab.LabGraderFile;
+import com.troy.labgrader.ui.*;
 
 public class Main {
 
 	public static Window window;
 
 	public static void main(String[] args) throws Exception {
-		/*
-		 * UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); UIManager.getLookAndFeelDefaults().put("defaultFont", new Font("Arial",
-		 * Font.BOLD, 30)); List<Student> list = new ArrayList(); list.add(new Student(5, "Troy Neubauer", "troyneubauer@gmail.com")); JFrame test = new
-		 * JFrame(); test.setLayout(new BorderLayout()); FieldTabel tab = new FieldTabel<Student>(list, Student.class); JTable jtab = new JTable(tab);
-		 * test.add(new JScrollPane(jtab), BorderLayout.CENTER); test.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); test.setSize(1440, 810);
-		 * test.setLocationRelativeTo(null); test.setVisible(true); JButton add = new JButton("add row"); add.addActionListener((e) -> { tab.addRow();
-		 * }); test.add(add, BorderLayout.SOUTH);
-		 */
 
-		window = new Window();
+		Object[] options = { "Open Existing File", "Create New File", "Quit" };
+
+		int result = JOptionPane.showOptionDialog(null, "", "Choose an option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, null);
+		if (result == JOptionPane.YES_OPTION || result == JOptionPane.NO_OPTION) {
+			if (result == JOptionPane.YES_OPTION) {// open
+				JFileChooser chooser = new JFileChooser();
+				chooser.setDialogTitle("Open File");
+				chooser.setFileFilter(new FileUtils.MyFileFilter());
+				chooser.showOpenDialog(null);
+				File file = chooser.getSelectedFile();
+				if (file == null)
+					System.exit(0);
+				window = new Window(new LabGraderFileViewer(file));
+
+			} else {// create new
+				JFileChooser chooser = new JFileChooser();
+				chooser.setDialogTitle("Save New File");
+				chooser.setFileFilter(new FileUtils.MyFileFilter());
+				chooser.showOpenDialog(null);
+				File file = chooser.getSelectedFile();
+				if (file == null)
+					System.exit(0);
+				if (file.exists() && file.isFile()) {
+					int value = JOptionPane.showOptionDialog(null, "Do you want to override this file?", file.getName() + " already exists!", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE,
+							null, null, null);
+					if (value == JOptionPane.CANCEL_OPTION)
+						System.exit(0);
+					else if (value == JOptionPane.YES_OPTION) {
+						if (!FilenameUtils.getExtension(file.getAbsolutePath()).equals(FileUtils.EXTENSION)) {
+							file = new File(file.getPath() + '.' + FileUtils.EXTENSION);
+						}
+						window = new Window(new LabGraderFileViewer(LabGraderFile.createNew(file)));
+					} else if (value == JOptionPane.NO_OPTION) {
+						main(args);
+						return;
+					} else {
+						System.exit(0);
+					}
+					return;
+				}
+
+			}
+		} else if (result == JOptionPane.CANCEL_OPTION) {
+			System.exit(0);
+		}
 
 		EmailScanner scanner = new EmailScanner(new EmailListener() {
 
