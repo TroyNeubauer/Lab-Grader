@@ -41,7 +41,7 @@ public class LabGraderFileViewer extends JPanel {
 
 	private void showNewYearDialog() {
 		String name = Utils.getUserString(this, "Enter new name for the new year", "Set Name", JOptionPane.INFORMATION_MESSAGE);
-		addYear(new Year(new ArrayList<>(), name), true);
+		addYear(new Year(new ArrayList<Course>(), name), true);
 	}
 
 	public LabGraderFileViewer(File file) {

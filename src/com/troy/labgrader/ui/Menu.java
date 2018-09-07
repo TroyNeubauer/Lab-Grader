@@ -10,6 +10,7 @@ import com.troy.labgrader.*;
 
 public class Menu extends JMenuBar {
 
+	@SuppressWarnings("restriction")
 	public Menu(Window window) {
 		JMenu file = new JMenu("File");
 		ImageIcon openIcon = null, newIcon = null;
@@ -22,8 +23,9 @@ public class Menu extends JMenuBar {
 		}
 		JMenuItem newItem = new JMenuItem("New", newIcon);
 		newItem.addActionListener((ActionEvent e) -> {
+			
 			try {
-				Main.main(new String[0]);
+				MiscUtil.runClass(Main.class, new ProcessBuilder(), new String[]{"1"});//1 is new
 			} catch (Exception e1) {
 				if (MiscUtil.isUnsafeSupported())
 					MiscUtil.getUnsafe().throwException(e1);
@@ -31,8 +33,21 @@ public class Menu extends JMenuBar {
 					throw new RuntimeException(e1);
 			}
 		});
-
 		file.add(newItem);
+		
+		JMenuItem openItem = new JMenuItem("Open", openIcon);
+		openItem.addActionListener((ActionEvent e) -> {
+			
+			try {
+				MiscUtil.runClass(Main.class, new ProcessBuilder(), new String[]{"0"});//0 is open
+			} catch (Exception e1) {
+				if (MiscUtil.isUnsafeSupported())
+					MiscUtil.getUnsafe().throwException(e1);
+				else
+					throw new RuntimeException(e1);
+			}
+		});
+		file.add(openItem);
 
 		add(file);
 

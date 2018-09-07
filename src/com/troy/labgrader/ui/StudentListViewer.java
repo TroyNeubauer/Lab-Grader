@@ -5,15 +5,17 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import org.apache.poi.util.JvmBugs;
+
 import com.troy.labgrader.*;
 import com.troy.labgrader.email.Student;
 
-public class StudentsListViewer extends JPanel {
+public class StudentListViewer extends JPanel {
 
 	private StudentList list;
 	private FieldTabel<Student> tabel;
 
-	public StudentsListViewer(StudentList list) {
+	public StudentListViewer(StudentList list) {
 		BoxLayout boxLayout = new BoxLayout(this, BoxLayout.Y_AXIS);
 		setLayout(boxLayout);
 		this.list = list;
@@ -58,11 +60,18 @@ public class StudentsListViewer extends JPanel {
 		addPanel.add(add);
 		add(addPanel);
 		add(new JScrollPane(new JTable(tabel)));
-		JButton save = new JButton("Save");
-
-		save.addActionListener((a) -> {
-			save();
-		});
+		
+		JPanel bottomPanel = new JPanel();
+		JButton export = new JButton("Export to Excel");
+		JButton import1 = new JButton("Import from Excel");
+		
+		
+		
+		bottomPanel.add(export);
+		bottomPanel.add(import1);
+		
+		add(bottomPanel);
+		
 		addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {

@@ -28,7 +28,7 @@ public class YearViewer extends JPanel {
 			setYearName(s);
 		});
 		bottom.add(editName);
-		pane.addTab("Students List", new StudentsListViewer(year.getStudents()));
+		pane.addTab("Students List", new StudentListViewer(year.getStudents()));
 		pane.setBorder(BorderFactory.createTitledBorder("Courses"));
 
 		add(bottom, BorderLayout.SOUTH);

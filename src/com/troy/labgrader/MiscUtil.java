@@ -2,8 +2,12 @@ package com.troy.labgrader;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.net.URISyntaxException;
 import java.nio.*;
 import java.util.*;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.core.pattern.ProcessIdPatternConverter;
 
 import sun.misc.Unsafe;
 
@@ -75,6 +79,10 @@ public class MiscUtil {
 		return false;
 	}
 
+	public static boolean isClassDefualtJavaClass(Class<?> clazz) {
+		return clazz.getClassLoader() == null;
+	}
+
 	/**
 	 * Returns an Enum object representing the enum declared in class {@code class} with the ordinal {@code ordinal}
 	 * 
@@ -129,6 +137,33 @@ public class MiscUtil {
 		return false;
 	}
 
+	public static Process runClass(Class<?> type) throws IOException {
+		return runClass(type, new ProcessBuilder(), new String[0]);
+	}
+
+	public static Process runClass(Class<?> type, ProcessBuilder builder, String[] args) throws IOException {
+		File location;
+		try {
+			location = new File(type.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+		/*
+		 * if (location.isFile()) { assert FilenameUtils.isExtension(location.getName(), "jar");
+		 * 
+		 * builder.command("java", "-cp", location.getAbsolutePath(), type.getName());
+		 * 
+		 * } else {// Is directory
+		 */
+		builder.command("java", "-cp", "\"" + location.getAbsolutePath() + "\"", type.getName());
+		// }
+		for (String arg : args)// Add extra args
+			builder.command().add(arg);
+
+		System.out.println("Running: " + builder.command());
+		return builder.start();
+	}
+
 	private static final Object helperArray[] = new Object[1];
 
 	/**
@@ -141,7 +176,7 @@ public class MiscUtil {
 		if (unsafe == null)
 			throw new IllegalStateException("Unsafe is NOT unsupported!! So the memory address cannot be retrived!!!");
 		helperArray[0] = obj;
-		long baseOffset = unsafe.arrayBaseOffset(Object[].class);
+		long baseOffset = Unsafe.ARRAY_OBJECT_BASE_OFFSET;
 		long addressOfObject = unsafe.getLong(helperArray, baseOffset);
 		return addressOfObject;
 	}
@@ -510,6 +545,26 @@ public class MiscUtil {
 		stream.close();
 	}
 
+	public static <T> T newInstanceUsingAnyMeans(Class<T> type) throws RuntimeException {
+		if (isUnsafeSupported()) {
+			try {
+				return (T) getUnsafe().allocateInstance(type);
+			} catch (InstantiationException e) {
+				throw new RuntimeException("Unable to create instance of " + type, e);
+			}
+		} else {
+			try {
+				return type.newInstance();
+			} catch (Exception e) {
+				try {
+					return MiscUtil.newInstanceUsingAConstructor(type);
+				} catch (Exception e2) {
+					throw new RuntimeException("All instantition stratgies failed...\nError 1:\n" + MiscUtil.getStackTrace(e) + "\n\nError2:\n" + MiscUtil.getStackTrace(e2));
+				}
+			}
+		}
+	}
+
 	/**
 	 * Creates a new instance of the specified constructor by invoking a constructor with garbage arguments
 	 * 
@@ -701,6 +756,26 @@ public class MiscUtil {
 			return Double.BYTES;
 		}
 		return 4; // default for 32-bit memory pointer
+	}
+
+	public static Field[] getAllNonTransientFields(Class<?> type) {
+		Objects.requireNonNull(type);
+
+		ArrayList<Field> fields = new ArrayList<Field>();
+		if (type.isPrimitive() || type.isArray())
+			throw new IllegalArgumentException(type + " must be a user defined type!");
+		while (type != Object.class) {
+			type = type.getSuperclass();
+			for (Field field : type.getDeclaredFields()) {
+				if (Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers()))
+					continue;// Skip - we don't care
+				
+				fields.add(field);
+			}
+		}
+		Field[] result = new Field[fields.size()];
+		fields.toArray(result);
+		return result;
 	}
 
 }

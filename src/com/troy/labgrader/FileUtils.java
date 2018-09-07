@@ -30,7 +30,8 @@ public class FileUtils {
 		public boolean accept(File f) {
 			if (f == null)
 				return false;
-			//System.out.println("is good file: " + MiscUtil.getExtension(f.getPath()).equals(FileUtils.EXTENSION) + " ext " + MiscUtil.getExtension(f.getPath()));
+			// System.out.println("is good file: " + MiscUtil.getExtension(f.getPath()).equals(FileUtils.EXTENSION) + " ext " +
+			// MiscUtil.getExtension(f.getPath()));
 			return f.isDirectory() || MiscUtil.getExtension(f.getPath()).equals(FileUtils.EXTENSION);
 		}
 	}
@@ -40,28 +41,17 @@ public class FileUtils {
 
 			@Override
 			public <T> ObjectInstantiator<T> newInstantiatorOf(Class<T> type) {
-
+				if (MiscUtil.isClassDefualtJavaClass(type)) {
+					System.out.println("using defualt instantitor: " + type);
+					return new Kryo.DefaultInstantiatorStrategy().newInstantiatorOf(type);
+				} else
+					System.out.println("using my instantitor: " + type);
 				return new ObjectInstantiator<T>() {
 
 					@Override
 					public T newInstance() {
-						if (MiscUtil.isUnsafeSupported()) {
-							try {
-								return (T) MiscUtil.getUnsafe().allocateInstance(type);
-							} catch (InstantiationException e) {
-								throw new RuntimeException(e);
-							}
-						} else {
-							try {
-								return type.newInstance();
-							} catch (Exception e) {
-								try {
-									return MiscUtil.newInstanceUsingAConstructor(type);
-								} catch (Exception e2) {
-									throw new Error("All instantition stratgies failed...\nError 1:\n" + MiscUtil.getStackTrace(e) + "\n\nError2:\n" + MiscUtil.getStackTrace(e2));
-								}
-							}
-						}
+						return MiscUtil.newInstanceUsingAnyMeans(type);
+
 					}
 				};
 			}

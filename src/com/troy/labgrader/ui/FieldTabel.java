@@ -2,11 +2,16 @@ package com.troy.labgrader.ui;
 
 import static java.lang.reflect.Modifier.*;
 
+import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
 
 import javax.swing.event.*;
-import javax.swing.table.*;
+import javax.swing.table.TableModel;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.troy.labgrader.*;
 
@@ -212,6 +217,138 @@ public class FieldTabel<T> implements TableModel {
 	public void add(T t) {
 		data.add(t);
 		fireEvent(new TableModelEvent(this, data.size() - 1, data.size(), 0, TableModelEvent.INSERT));
+	}
+
+	public static <T> List<T> importFromExcel(File file, Class<T> type) {
+		return importFromExcel(file, 0, type);
+	}
+
+	public static <T> List<T> importFromExcel(File file, int sheetNumber, Class<T> type) {
+		List<T> list = new ArrayList<T>();
+		FileInputStream stream;
+		XSSFWorkbook workbook = null;
+
+		try {
+			stream = new FileInputStream(file);
+			workbook = new XSSFWorkbook(stream);
+			Sheet sheet = workbook.getSheetAt(0);
+			Field[] fields = MiscUtil.getAllNonTransientFields(type);
+			Map<Field, Integer> columnIndices = new HashMap<Field, Integer>(fields.length);
+			Row row1 = sheet.getRow(0);
+			for (int i = 0; i < fields.length; i++) {
+				Field field = fields[i];
+				int row = findCol(row1, field.getName());
+				if (row == -1)
+					System.err.println("Warning: Field name: " + field.getName() + " is not listed in sheet! Will be assigned as null, false, or 0");
+				columnIndices.put(field, row);
+			}
+			int maxRow = -1;
+			for (int colInt = 0; colInt < fields.length; colInt++) {
+				int rowInt = 1;
+				while (true) {
+					Row row = sheet.getRow(rowInt);
+					Cell cell = null;
+					if (row == null || (cell = row.getCell(colInt, MissingCellPolicy.CREATE_NULL_AS_BLANK)) == null) {
+						if (rowInt > maxRow) {
+							if (maxRow != -1) {
+								System.err.println("Uneven rows!");
+							}
+							if(cell.getCellTypeEnum() != CellType.NUMERIC)
+								System.err.println("Non numeric cell at: " + cell.getAddress().formatAsString());
+							
+							maxRow = rowInt;
+							break;
+						}
+					}
+				}
+			}// We have either found a nice square area or reported the issue to the user
+			
+			if (maxRow == -1)// We didnt find any data in the list
+				return list;
+			for(int i = 1; i < maxRow; i++) {//Start at 1 because the data starts at row 1
+				list.add(MiscUtil.newInstanceUsingAnyMeans(type));
+			}
+			for (Field field : fields) {
+				int rowInt = 1;
+				for (Row row : new MyIterable<Row>(sheet.iterator())) {
+					if (rowInt > maxRow)
+						break;
+					int col = columnIndices.get(field);
+					if (col == -1)
+						continue;
+					Cell cell = row.getCell(col, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+					
+					Class<?> fieldType = field.getType();
+					if(fieldType.isPrimitive()) {
+						if(fieldType == byte.class) {
+							field.setByte(list.get(rowInt - 1), (byte) cell.getNumericCellValue());
+						} else if(fieldType == short.class) {
+							
+						} else if(fieldType == int.class) {
+							
+						} else if(fieldType == long.class) {
+							
+						} else if(fieldType == float.class) {
+							
+						} else if(fieldType == double.class) {
+							
+						} else if(fieldType == char.class) {
+							
+						} else if(fieldType == boolean.class) {
+							
+						}
+					} else {
+						System.err.println("FieldTable cannot read non primitive data at this time!");
+					}
+					
+					rowInt++;
+				}
+			}
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			if (workbook != null) {
+				try {
+					workbook.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return list;
+	}
+
+	public static int findCol(Row row, String target) {
+		for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
+			Cell cell = row.getCell(i, MissingCellPolicy.RETURN_BLANK_AS_NULL);
+			if (cell != null) {
+				try {
+					String s = cell.getStringCellValue();
+					if (s.equalsIgnoreCase(target)) {
+						return cell.getColumnIndex();
+					}
+				} catch (Exception e) {
+					// We dont care if getStringCellValue() throws an exception
+				}
+			}
+		}
+		return -1;
+	}
+
+	public static class MyIterable<T> implements Iterable<T> {
+
+		private Iterator<T> iterator;
+
+		public MyIterable(Iterator<T> iterator) {
+			this.iterator = iterator;
+		}
+
+		@Override
+		public Iterator<T> iterator() {
+			return iterator;
+		}
+
 	}
 
 }

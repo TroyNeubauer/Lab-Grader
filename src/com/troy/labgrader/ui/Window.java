@@ -44,7 +44,6 @@ public class Window extends JFrame implements DisplaysListener {
 			public void windowClosing(WindowEvent e) {
 				file.save();
 				file.close();
-				System.out.println("saving");
 			}
 		});
 	}
