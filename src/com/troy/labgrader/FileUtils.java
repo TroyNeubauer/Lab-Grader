@@ -18,12 +18,13 @@ public class FileUtils {
 	public static final String EXTENSION = "troygrade", FILES_DIRECTORY = "files", APPDATA_FOLDER_NAME = "Troy's Lab Grader";
 	public static final File APPDATA_STORAGE_FOLDER = new File(System.getenv("APPDATA"), APPDATA_FOLDER_NAME);
 	public static final Kryo kryo = new Kryo();
+	public static final String EXCEL_EXTENSION = "xlsx";
 
-	static class MyFileFilter extends FileFilter {
+	public static class MyFileFilter extends FileFilter {
 
 		@Override
 		public String getDescription() {
-			return "troygrade";
+			return EXTENSION;
 		}
 
 		@Override
@@ -33,6 +34,21 @@ public class FileUtils {
 			// System.out.println("is good file: " + MiscUtil.getExtension(f.getPath()).equals(FileUtils.EXTENSION) + " ext " +
 			// MiscUtil.getExtension(f.getPath()));
 			return f.isDirectory() || MiscUtil.getExtension(f.getPath()).equals(FileUtils.EXTENSION);
+		}
+	}
+	
+	public static class ExcelFileFilter extends FileFilter {
+
+		@Override
+		public String getDescription() {
+			return EXCEL_EXTENSION;
+		}
+
+		@Override
+		public boolean accept(File f) {
+			if (f == null)
+				return false;
+			return f.isDirectory() || MiscUtil.getExtension(f.getPath()).equals(EXCEL_EXTENSION);
 		}
 	}
 

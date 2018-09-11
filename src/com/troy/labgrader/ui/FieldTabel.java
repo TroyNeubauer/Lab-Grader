@@ -1,7 +1,5 @@
 package com.troy.labgrader.ui;
 
-import static java.lang.reflect.Modifier.*;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -14,6 +12,7 @@ import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.troy.labgrader.*;
+import com.troy.labgrader.email.Student;
 
 public class FieldTabel<T> implements TableModel {
 
@@ -23,21 +22,10 @@ public class FieldTabel<T> implements TableModel {
 	private List<TableModelListener> listeners = new ArrayList<TableModelListener>();
 
 	public FieldTabel(List<T> data, Class<T> type) {
-		super();
 		this.data = Objects.requireNonNull(data);
 		this.type = Objects.requireNonNull(type);
-		Field[] rawFields = type.getDeclaredFields();
-		ArrayList<Field> temp = new ArrayList<Field>();
-		int i = 0;
-		for (Field f : rawFields) {
-			if (!isTransient(f.getModifiers())) {
-				temp.add(f);
-				f.setAccessible(true);
-			}
-		}
-		fields = new Field[temp.size()];
-		temp.toArray(fields);
-		// System.out.println(Arrays.toString(fields));
+		this.fields = MiscUtil.getAllNonTransientFields(type);
+		for(Field field : fields) field.setAccessible(true);
 	}
 
 	@Override
@@ -47,13 +35,11 @@ public class FieldTabel<T> implements TableModel {
 
 	@Override
 	public int getColumnCount() {
-
 		return fields.length;
 	}
 
 	@Override
 	public String getColumnName(int columnIndex) {
-
 		return fields[columnIndex].getName();
 	}
 
@@ -242,69 +228,72 @@ public class FieldTabel<T> implements TableModel {
 					System.err.println("Warning: Field name: " + field.getName() + " is not listed in sheet! Will be assigned as null, false, or 0");
 				columnIndices.put(field, row);
 			}
+			/*
+			 * for (int rowInt = 0; rowInt < 10; rowInt++) { Row row = sheet.getRow(rowInt); for (int colInt = 0; colInt < fields.length; colInt++) {
+			 * 
+			 * if (row == null) { System.out.print("<RN"); break; } else { Cell cell = row.getCell(colInt, MissingCellPolicy.RETURN_BLANK_AS_NULL); if (cell
+			 * == null) System.out.print("<CN"); else if (cell.getCellTypeEnum() == CellType.NUMERIC) System.out.print(cell.getNumericCellValue()); else if
+			 * (cell.getCellTypeEnum() == CellType.STRING) System.out.print(cell.getStringCellValue()); else System.out.print("T" + cell.getCellTypeEnum());
+			 * } System.out.print(" "); } System.out.println(); }
+			 */
+
 			int maxRow = -1;
-			for (int colInt = 0; colInt < fields.length; colInt++) {
-				int rowInt = 1;
-				while (true) {
-					Row row = sheet.getRow(rowInt);
-					Cell cell = null;
-					if (row == null || (cell = row.getCell(colInt, MissingCellPolicy.CREATE_NULL_AS_BLANK)) == null) {
-						if (rowInt > maxRow) {
-							if (maxRow != -1) {
-								System.err.println("Uneven rows!");
-							}
-							if(cell.getCellTypeEnum() != CellType.NUMERIC)
-								System.err.println("Non numeric cell at: " + cell.getAddress().formatAsString());
-							
-							maxRow = rowInt;
-							break;
-						}
-					}
-				}
-			}// We have either found a nice square area or reported the issue to the user
-			
+			int findMaxRow = 0;
+			while (sheet.getRow(findMaxRow) != null) {
+				findMaxRow++;
+			}
+			maxRow = findMaxRow;
+
 			if (maxRow == -1)// We didnt find any data in the list
 				return list;
-			for(int i = 1; i < maxRow; i++) {//Start at 1 because the data starts at row 1
+			for (int i = 1; i < maxRow; i++) {// Start at 1 because the data starts at row 1
 				list.add(MiscUtil.newInstanceUsingAnyMeans(type));
 			}
 			for (Field field : fields) {
-				int rowInt = 1;
-				for (Row row : new MyIterable<Row>(sheet.iterator())) {
-					if (rowInt > maxRow)
-						break;
+				field.setAccessible(true);
+				System.out.println("max row: " + maxRow);
+				for (int rowInt = 1; rowInt < maxRow; rowInt++) {
+					Row row = sheet.getRow(rowInt);
 					int col = columnIndices.get(field);
 					if (col == -1)
 						continue;
 					Cell cell = row.getCell(col, MissingCellPolicy.CREATE_NULL_AS_BLANK);
-					
+
 					Class<?> fieldType = field.getType();
-					if(fieldType.isPrimitive()) {
-						if(fieldType == byte.class) {
-							field.setByte(list.get(rowInt - 1), (byte) cell.getNumericCellValue());
-						} else if(fieldType == short.class) {
-							
-						} else if(fieldType == int.class) {
-							
-						} else if(fieldType == long.class) {
-							
-						} else if(fieldType == float.class) {
-							
-						} else if(fieldType == double.class) {
-							
-						} else if(fieldType == char.class) {
-							
-						} else if(fieldType == boolean.class) {
-							
+
+					System.out.print("row " + rowInt + " col " + col + " type " + cell.getCellTypeEnum());
+
+					if (cell.getCellTypeEnum() == CellType.STRING)
+						System.out.println(cell.getStringCellValue());
+					else if (cell.getCellTypeEnum() == CellType.NUMERIC)
+						System.out.println(cell.getNumericCellValue());
+
+					T obj = list.get(rowInt - 1);
+					if (fieldType.isPrimitive()) {
+						if (fieldType == byte.class) {
+							field.setByte(obj, (byte) cell.getNumericCellValue());
+						} else if (fieldType == short.class) {
+							field.setShort(obj, (short) cell.getNumericCellValue());
+						} else if (fieldType == int.class) {
+							field.setInt(obj, (int) cell.getNumericCellValue());
+						} else if (fieldType == long.class) {
+							field.setLong(obj, (long) cell.getNumericCellValue());
+						} else if (fieldType == float.class) {
+							field.setFloat(obj, (float) cell.getNumericCellValue());
+						} else if (fieldType == double.class) {
+							field.setDouble(obj, cell.getNumericCellValue());
+						} else if (fieldType == char.class) {
+							field.setChar(obj, cell.getStringCellValue().charAt(0));
+						} else if (fieldType == boolean.class) {
+							field.setBoolean(obj, cell.getBooleanCellValue());
 						}
+					} else if (fieldType == String.class) {
+						field.set(obj, cell.getStringCellValue());
 					} else {
 						System.err.println("FieldTable cannot read non primitive data at this time!");
 					}
-					
-					rowInt++;
 				}
 			}
-
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -317,6 +306,56 @@ public class FieldTabel<T> implements TableModel {
 			}
 		}
 		return list;
+	}
+
+	public void exportToExcel(File file) {
+		XSSFWorkbook workbook = null;
+		try {
+			workbook = new XSSFWorkbook();
+			Sheet sheet = workbook.createSheet();
+			Row header = sheet.createRow(0);
+			int col = 0;
+			for (Field field : fields) {
+				Cell cell = header.createCell(col++, CellType.STRING);
+				cell.setCellValue(field.getName());
+			}
+			for (int i = 0; i < data.size(); i++) {
+				Row row = sheet.createRow(i + 1);
+				col = 0;
+				Object obj = data.get(i);
+				for (Field field : fields) {
+					Class<?> type = field.getType();
+					Cell cell = row.createCell(col++);
+					if (type.isPrimitive()) {
+						if (type == boolean.class) {
+							cell.setCellValue(field.getBoolean(obj));
+						} else if (type == char.class) {
+							char[] chars = new char[1];
+							chars[0] = field.getChar(obj);
+							cell.setCellValue(new String(chars));
+						} else {
+							Object fieldValue = field.get(obj);
+							cell.setCellValue(((Number) fieldValue).doubleValue());
+						}
+					} else {
+						String value = String.valueOf(field.get(obj));
+						cell.setCellValue(value);
+					}
+				}
+			}
+			FileOutputStream fileOut = new FileOutputStream(file);
+	        workbook.write(fileOut);
+	        fileOut.close();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				if (workbook != null)
+					workbook.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	public static int findCol(Row row, String target) {
@@ -349,6 +388,11 @@ public class FieldTabel<T> implements TableModel {
 			return iterator;
 		}
 
+	}
+
+	public void setData(List<T> data) {
+		this.data = data;
+		fireEvent(new TableModelEvent(this, 0, data.size(), TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
 	}
 
 }

@@ -4,8 +4,6 @@ import java.io.File;
 
 import javax.swing.*;
 
-import org.apache.commons.io.*;
-
 import com.troy.labgrader.email.*;
 import com.troy.labgrader.lab.LabGraderFile;
 import com.troy.labgrader.ui.*;
@@ -50,9 +48,7 @@ public class Main {
 						if (value == JOptionPane.CANCEL_OPTION)
 							System.exit(0);
 						else if (value == JOptionPane.YES_OPTION) {
-							if (!FilenameUtils.getExtension(file.getAbsolutePath()).equals(FileUtils.EXTENSION)) {
-								file = new File(file.getPath() + '.' + FileUtils.EXTENSION);
-							}
+							file = Utils.setExtention(file, FileUtils.EXTENSION);
 							window = new Window(new LabGraderFileViewer(LabGraderFile.createNew(file)));
 						} else if (value == JOptionPane.NO_OPTION) {
 							MiscUtil.runClass(Main.class);

@@ -45,4 +45,8 @@ public class StudentList {
 	public List<Student> getStudents() {
 		return students;
 	}
+
+	public void setStudents(List<Student> data) {
+		this.students = data;
+	}
 }

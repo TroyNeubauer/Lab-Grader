@@ -2,10 +2,10 @@ package com.troy.labgrader.ui;
 
 import java.awt.FlowLayout;
 import java.awt.event.*;
+import java.io.File;
+import java.util.List;
 
 import javax.swing.*;
-
-import org.apache.poi.util.JvmBugs;
 
 import com.troy.labgrader.*;
 import com.troy.labgrader.email.Student;
@@ -60,18 +60,40 @@ public class StudentListViewer extends JPanel {
 		addPanel.add(add);
 		add(addPanel);
 		add(new JScrollPane(new JTable(tabel)));
-		
+
 		JPanel bottomPanel = new JPanel();
 		JButton export = new JButton("Export to Excel");
 		JButton import1 = new JButton("Import from Excel");
-		
-		
-		
+		export.addActionListener((e) -> {
+			JFileChooser chooser = new JFileChooser();
+			chooser.setDialogTitle("Save Excel File");
+			chooser.setFileFilter(new FileUtils.ExcelFileFilter());
+			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			chooser.showOpenDialog(null);
+			File file = chooser.getSelectedFile();
+			if (file == null)
+				return;
+			file = Utils.setExtention(file, FileUtils.EXCEL_EXTENSION);
+			tabel.exportToExcel(file);
+		});
+		import1.addActionListener((e) -> {
+			JFileChooser chooser = new JFileChooser();
+			chooser.setDialogTitle("Open File");
+			chooser.setFileFilter(new FileUtils.ExcelFileFilter());
+			chooser.showOpenDialog(null);
+			File file = chooser.getSelectedFile();
+			if (file == null)
+				return;
+			List<Student> data = FieldTabel.importFromExcel(file, Student.class);
+			this.tabel.setData(data);
+			list.setStudents(data);
+		});
+
 		bottomPanel.add(export);
 		bottomPanel.add(import1);
-		
+
 		add(bottomPanel);
-		
+
 		addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {

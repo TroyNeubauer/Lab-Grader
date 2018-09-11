@@ -765,13 +765,13 @@ public class MiscUtil {
 		if (type.isPrimitive() || type.isArray())
 			throw new IllegalArgumentException(type + " must be a user defined type!");
 		while (type != Object.class) {
-			type = type.getSuperclass();
 			for (Field field : type.getDeclaredFields()) {
 				if (Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers()))
 					continue;// Skip - we don't care
 				
 				fields.add(field);
 			}
+			type = type.getSuperclass();
 		}
 		Field[] result = new Field[fields.size()];
 		fields.toArray(result);

@@ -1,32 +1,15 @@
 package com.troy.labgrader;
 
 import java.awt.Component;
-import java.io.*;
-import java.util.List;
+import java.io.File;
 
 import javax.swing.JOptionPane;
 
-import com.troy.labgrader.email.Student;
+import org.apache.commons.io.FilenameUtils;
 
 public class Utils {
 
 	public static final long INVALID_STRING = Long.MIN_VALUE;
-	
-	public static void exportSdutentListToExcel(StudentList list, File file) {
-		XSSFWorkbook workbook = null;
-		FileInputStream stream;
-		try {
-			stream = new FileInputStream(file);
-			workbook = new XSSFWorkbook(stream);
-			Sheet sheet = workbook.getSheetAt(0);
-			List<Student> students = list.getStudents();
-			for(int i = 0; i < students.size() + 1; i++) {//One for each student + one header row
-				sheet.createRow(i);
-			}
-		} catch (Exception e) {
-			showError(e);
-		}
-	}
 
 	public static void showError(Throwable t) {
 		JOptionPane.showMessageDialog(null, MiscUtil.getStackTrace(t), "Error!", JOptionPane.ERROR_MESSAGE);
@@ -88,5 +71,12 @@ public class Utils {
 
 	public static String getUserString(Component master, String message, String title, int messageType) {
 		return (String) JOptionPane.showInputDialog(master, message, title, messageType, null, null, null);
+	}
+
+	public static File setExtention(File file, String extension) {
+		if (FilenameUtils.getExtension(file.getAbsolutePath()).equals(extension))
+			return file;
+		else
+			return new File(file.getPath() + '.' + extension);
 	}
 }
