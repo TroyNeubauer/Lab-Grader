@@ -33,7 +33,6 @@ public class Main {
 					if (file == null)
 						System.exit(0);
 					window = new Window(new LabGraderFileViewer(file));
-
 				} else {// create new
 					JFileChooser chooser = new JFileChooser();
 					chooser.setDialogTitle("Save New File");
@@ -64,7 +63,6 @@ public class Main {
 			}
 
 			EmailScanner scanner = new EmailScanner(new EmailListener() {
-
 				@Override
 				public void onEmail(Email email) {
 					try {

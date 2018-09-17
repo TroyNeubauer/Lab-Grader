@@ -6,8 +6,10 @@ import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.*;
 import org.apache.logging.log4j.*;
+
+import com.troy.labgrader.FileUtils;
 
 public class Email {
 	private static Logger logger = LogManager.getLogger();
@@ -15,11 +17,13 @@ public class Email {
 	private Message message;
 	private String body;
 	private List<MimeBodyPart> attachments;
+	private long id;
 
 	private Email(Message message, String body, List<MimeBodyPart> attachments) {
 		this.message = message;
 		this.body = body;
 		this.attachments = attachments;
+		this.id = FileUtils.getAndIncrementNumberOfEmails();
 	}
 
 	public String getText() {
@@ -96,5 +100,8 @@ public class Email {
 	public Message getMessage() {
 		return message;
 	}
-
+	
+	public long getId() {
+		return id;
+	}
 }

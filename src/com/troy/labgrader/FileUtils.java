@@ -19,18 +19,40 @@ public class FileUtils {
 	public static final File APPDATA_STORAGE_FOLDER = new File(System.getenv("APPDATA"), APPDATA_FOLDER_NAME), NUMBER_OF_EMAILS_FILE = new File(APPDATA_STORAGE_FOLDER, "email count.dat");
 	public static final Kryo kryo = new Kryo();
 	public static final String EXCEL_EXTENSION = "xlsx";
-	
-	public static void deleteAllEmails() {
-		for(File file : APPDATA_STORAGE_FOLDER.listFiles()) {
-			if(file.isDirectory()) {
-				try {
-					org.apache.commons.io.FileUtils.deleteDirectory(file);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
+	private static final Object EMAIL_COUNT_LOCK = new Object();
+
+	static {
+		kryo.setInstantiatorStrategy(new InstantiatorStrategy() {
+			@Override
+			public <T> ObjectInstantiator<T> newInstantiatorOf(Class<T> type) {
+				if (MiscUtil.isClassDefualtJavaClass(type)) {
+					return new Kryo.DefaultInstantiatorStrategy().newInstantiatorOf(type);
+				} else {
+					return new ObjectInstantiator<T>() {
+						@Override
+						public T newInstance() {
+							return MiscUtil.newInstanceUsingAnyMeans(type);
+
+						}
+					};
 				}
 			}
+		});
+	}
+
+	public static void deleteAllEmails() {
+		synchronized (EMAIL_COUNT_LOCK) {
+			for (File file : APPDATA_STORAGE_FOLDER.listFiles()) {
+				if (file.isDirectory()) {
+					try {
+						org.apache.commons.io.FileUtils.deleteDirectory(file);
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
+			setNumberOfEmails(0);
 		}
-		setNumberOfEmails(0);
 	}
 
 	public static long getNumebrOfEmails() {
@@ -69,8 +91,15 @@ public class FileUtils {
 		}
 	}
 
-	public static class MyFileFilter extends FileFilter {
+	public static long getAndIncrementNumberOfEmails() {
+		synchronized (EMAIL_COUNT_LOCK) {
+			long result = getNumebrOfEmails();
+			setNumberOfEmails(result + 1);
+			return result;
+		}
+	}
 
+	public static class MyFileFilter extends FileFilter {
 		@Override
 		public String getDescription() {
 			return EXTENSION;
@@ -80,8 +109,6 @@ public class FileUtils {
 		public boolean accept(File f) {
 			if (f == null)
 				return false;
-			// System.out.println("is good file: " + MiscUtil.getExtension(f.getPath()).equals(FileUtils.EXTENSION) + " ext " +
-			// MiscUtil.getExtension(f.getPath()));
 			return f.isDirectory() || MiscUtil.getExtension(f.getPath()).equals(FileUtils.EXTENSION);
 		}
 	}
@@ -99,28 +126,6 @@ public class FileUtils {
 				return false;
 			return f.isDirectory() || MiscUtil.getExtension(f.getPath()).equals(EXCEL_EXTENSION);
 		}
-	}
-
-	static {
-		kryo.setInstantiatorStrategy(new InstantiatorStrategy() {
-
-			@Override
-			public <T> ObjectInstantiator<T> newInstantiatorOf(Class<T> type) {
-				if (MiscUtil.isClassDefualtJavaClass(type)) {
-					System.out.println("using defualt instantitor: " + type);
-					return new Kryo.DefaultInstantiatorStrategy().newInstantiatorOf(type);
-				} else
-					System.out.println("using my instantitor: " + type);
-				return new ObjectInstantiator<T>() {
-
-					@Override
-					public T newInstance() {
-						return MiscUtil.newInstanceUsingAnyMeans(type);
-
-					}
-				};
-			}
-		});
 	}
 
 	public static String removeBannedCharacters(String part) {
