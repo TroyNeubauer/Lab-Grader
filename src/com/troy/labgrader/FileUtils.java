@@ -1,7 +1,6 @@
 package com.troy.labgrader;
 
 import java.io.*;
-import java.util.*;
 
 import javax.mail.*;
 import javax.swing.filechooser.FileFilter;

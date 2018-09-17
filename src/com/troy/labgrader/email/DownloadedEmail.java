@@ -71,4 +71,21 @@ public class DownloadedEmail {
 		}
 		return list;
 	}
+	
+	public static List<Long> getAllAsLongs(File file) {
+		return getAllAsLongs(file, new ArrayList<Long>());
+	}
+	
+	private static List<Long> getAllAsLongs(File file, List<Long> list) {
+		if (file.isDirectory()) {
+			if (isDownloadedEmail(file)) {
+				list.add(Long.valueOf(file.getName(), Character.MAX_RADIX));
+			} else {
+				for (File child : file.listFiles()) {
+					getAllAsLongs(child, list);
+				}
+			}
+		}
+		return list;
+	}
 }
