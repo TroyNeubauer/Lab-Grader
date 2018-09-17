@@ -3,27 +3,44 @@ package com.troy.labgrader.email;
 import java.io.File;
 import java.util.*;
 
+import com.troy.labgrader.FileUtils;
+
 public class DownloadedEmail {
-	public static final String BODY_NAME = "body.txt", INFO_NAME = "info.txt", ATTACHMENTS_FOLDER = "attachments";
+	public static final String INFO_FILE_NAME = "info.dat", ATTACHMENTS_FOLDER_NAME = "attachments";
 
-	private File file;
+	private String[] from;
+	private String subject;
+	private long epochTime;
+	private File[] attachments;
 
-	public DownloadedEmail(File file) {
-		this.file = file;
+	private DownloadedEmail(String[] from, long epochTime, File[] attachments, String subject) {
+		this.from = from;
+		this.epochTime = epochTime;
+		this.attachments = attachments;
+		this.subject = subject;
+	}
+
+	public static DownloadedEmail save(File file, String[] from, long epochTime, String subject, File[] attachments) {
+		DownloadedEmail email = new DownloadedEmail(from, epochTime, attachments, subject);
+		FileUtils.write(file, email);
+		return email;
+	}
+
+	public static void save(File file, DownloadedEmail email) {
+		FileUtils.write(file, email);
+	}
+
+	public static DownloadedEmail open(File file) {
+		return FileUtils.read(file, DownloadedEmail.class);
 	}
 
 	public static boolean isDownloadedEmail(File file) {
-		File attachments = new File(file, ATTACHMENTS_FOLDER + File.separatorChar);
+		File attachments = new File(file, ATTACHMENTS_FOLDER_NAME + File.separatorChar);
 		if (!attachments.exists() || attachments.isFile()) {
 			return false;
 		}
 
-		File body = new File(file, BODY_NAME);
-		if (!body.exists() || body.isDirectory()) {
-			return false;
-		}
-
-		File info = new File(file, INFO_NAME);
+		File info = new File(file, INFO_FILE_NAME);
 		if (!info.exists() || info.isDirectory()) {
 			return false;
 		}
@@ -35,7 +52,7 @@ public class DownloadedEmail {
 		if (!isDownloadedEmail(file))
 			throw new IllegalArgumentException("Invalid downloaded email file: " + file);
 
-		return new DownloadedEmail(file);
+		return DownloadedEmail.open(file);
 	}
 
 	public static List<DownloadedEmail> getAll(File file) {
@@ -45,7 +62,7 @@ public class DownloadedEmail {
 	private static List<DownloadedEmail> getAll(File file, List<DownloadedEmail> list) {
 		if (file.isDirectory()) {
 			if (isDownloadedEmail(file)) {
-				list.add(new DownloadedEmail(file));
+				list.add(DownloadedEmail.open(file));
 			} else {
 				for (File child : file.listFiles()) {
 					getAll(child, list);
@@ -54,5 +71,4 @@ public class DownloadedEmail {
 		}
 		return list;
 	}
-
 }

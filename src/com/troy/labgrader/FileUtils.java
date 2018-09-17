@@ -3,7 +3,7 @@ package com.troy.labgrader;
 import java.io.*;
 import java.util.*;
 
-import javax.mail.MessagingException;
+import javax.mail.*;
 import javax.swing.filechooser.FileFilter;
 
 import org.objenesis.instantiator.ObjectInstantiator;
@@ -163,43 +163,20 @@ public class FileUtils {
 
 	public static DownloadedEmail saveEmail(Email email) {
 		try {
-			String from = EmailUtils.getEmail(email.getMessage().getFrom()[0]);
-			UUID uuid = UUID.randomUUID();
-			File file = new File(APPDATA_STORAGE_FOLDER, toEmailDirectory(from) + File.separatorChar + uuid.toString().replaceAll("-", ""));
+			File file = new File(APPDATA_STORAGE_FOLDER, Long.toString(email.getId(), Character.MAX_RADIX));
+			File[] attachments = email.downloadAttachments(new File(file, DownloadedEmail.ATTACHMENTS_FOLDER_NAME));
 
-			email.downloadAttachments(new File(file, DownloadedEmail.ATTACHMENTS_FOLDER));
+			Message message = email.getMessage();
 
-			StringBuilder info = new StringBuilder();
-			info.append("from:");
-			info.append(Arrays.toString(email.getMessage().getFrom()));
-			info.append('\n');
-			Date date = email.getMessage().getSentDate();
-			if (date == null)
-				date = email.getMessage().getReceivedDate();
-			if (date != null) {
-				info.append("date:");
-				info.append(date.getTime() / 1000);
-				info.append('\n');
+			String[] from = new String[email.getMessage().getFrom().length];
+			for (int i = 0; i < email.getMessage().getFrom().length; i++) {
+				from[i] = email.getMessage().getFrom()[i].toString();
 			}
-			info.append("subject:");
-			info.append(email.getMessage().getSubject());
-			info.append('\n');
+			String subject = message.getSubject();
+			long messageTime = email.getMessage().getReceivedDate().getTime() / 1000;
 
-			writeString(file, DownloadedEmail.INFO_NAME, info.toString());
-			writeString(file, DownloadedEmail.BODY_NAME, email.getText());
-			return new DownloadedEmail(file);
+			return DownloadedEmail.save(new File(file, DownloadedEmail.INFO_FILE_NAME), from, messageTime, subject, attachments);
 		} catch (MessagingException e) {
-			throw new RuntimeException(e);
-		}
-
-	}
-
-	private static void writeString(File parent, String fileName, String string) {
-		try {
-			FileWriter writer = new FileWriter(new File(parent, fileName));
-			writer.write(string);
-			writer.close();
-		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
