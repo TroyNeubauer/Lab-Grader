@@ -16,9 +16,58 @@ import com.troy.labgrader.email.*;
 public class FileUtils {
 
 	public static final String EXTENSION = "troygrade", FILES_DIRECTORY = "files", APPDATA_FOLDER_NAME = "Troy's Lab Grader";
-	public static final File APPDATA_STORAGE_FOLDER = new File(System.getenv("APPDATA"), APPDATA_FOLDER_NAME);
+	public static final File APPDATA_STORAGE_FOLDER = new File(System.getenv("APPDATA"), APPDATA_FOLDER_NAME), NUMBER_OF_EMAILS_FILE = new File(APPDATA_STORAGE_FOLDER, "email count.dat");
 	public static final Kryo kryo = new Kryo();
 	public static final String EXCEL_EXTENSION = "xlsx";
+	
+	public static void deleteAllEmails() {
+		for(File file : APPDATA_STORAGE_FOLDER.listFiles()) {
+			if(file.isDirectory()) {
+				try {
+					org.apache.commons.io.FileUtils.deleteDirectory(file);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		setNumberOfEmails(0);
+	}
+
+	public static long getNumebrOfEmails() {
+		DataInputStream stream = null;
+		try {
+			stream = new DataInputStream(new FileInputStream(NUMBER_OF_EMAILS_FILE));
+			return stream.readLong();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+	}
+
+	public static void setNumberOfEmails(long count) {
+		DataOutputStream stream = null;
+		try {
+			stream = new DataOutputStream(new FileOutputStream(NUMBER_OF_EMAILS_FILE));
+			stream.writeLong(count);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+	}
 
 	public static class MyFileFilter extends FileFilter {
 
@@ -36,7 +85,7 @@ public class FileUtils {
 			return f.isDirectory() || MiscUtil.getExtension(f.getPath()).equals(FileUtils.EXTENSION);
 		}
 	}
-	
+
 	public static class ExcelFileFilter extends FileFilter {
 
 		@Override

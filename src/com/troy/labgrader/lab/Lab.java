@@ -5,5 +5,4 @@ import java.util.*;
 public class Lab {
 	private Date start, end;
 	private String name;
-	private String folder;
 }

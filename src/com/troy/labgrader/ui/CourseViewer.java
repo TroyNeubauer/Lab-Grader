@@ -24,6 +24,12 @@ public class CourseViewer extends JPanel {
 			setCourseName(s);
 		});
 		add(editName, c);
+		
+		JButton deleteCourse = new JButton("Delete Course");
+		deleteCourse.addActionListener((e) -> {
+			parent.removeCourse(course);
+		});
+		add(deleteCourse, c);
 
 	}
 

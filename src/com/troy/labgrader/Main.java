@@ -58,7 +58,6 @@ public class Main {
 						}
 						return;
 					}
-
 				}
 			} else {// Includes cancel and all other cases
 				System.exit(0);

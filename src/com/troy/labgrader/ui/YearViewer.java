@@ -22,6 +22,10 @@ public class YearViewer extends JPanel {
 		newCourse.addActionListener((e) -> showNewCourseDialog());
 		bottom.add(newCourse);
 
+		for (Course c : year.getCourses()) {
+			addCourse(c, false);
+		}
+
 		JButton editName = new JButton("Edit Year Name");
 		editName.addActionListener((e) -> {
 			String s = Utils.getUserString(this, "Enter new name for the year \"" + year.getName() + "\".", "Edit Name", JOptionPane.INFORMATION_MESSAGE);
@@ -44,7 +48,6 @@ public class YearViewer extends JPanel {
 		if (add)
 			year.getCourses().add(course);
 		pane.addTab(course.getName(), new CourseViewer(course, this));
-
 	}
 
 	private void showNewCourseDialog() {
@@ -54,6 +57,12 @@ public class YearViewer extends JPanel {
 
 	public JTabbedPane getPane() {
 		return pane;
+	}
+
+	public void removeCourse(Course course) {
+		year.getCourses().remove(course);
+		pane.removeTabAt(pane.getSelectedIndex());
+		
 	}
 
 }
