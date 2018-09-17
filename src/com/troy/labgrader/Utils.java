@@ -12,7 +12,11 @@ public class Utils {
 	public static final long INVALID_STRING = Long.MIN_VALUE;
 
 	public static void showError(Throwable t) {
-		JOptionPane.showMessageDialog(null, MiscUtil.getStackTrace(t), "Error!", JOptionPane.ERROR_MESSAGE);
+		showError(t, "Error!");
+	}
+
+	public static void showError(Throwable t, String title) {
+		JOptionPane.showMessageDialog(null, MiscUtil.getStackTrace(t), title, JOptionPane.ERROR_MESSAGE);
 	}
 
 	public static long getByte(String string) {

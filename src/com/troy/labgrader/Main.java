@@ -67,7 +67,11 @@ public class Main {
 
 				@Override
 				public void onEmail(Email email) {
-					FileUtils.saveEmail(email);
+					try {
+						FileUtils.saveEmail(email);
+					} catch (Exception e) {
+						Utils.showError(e, "Unable to save email!");
+					}
 				}
 			});
 		} catch (Exception e) {
