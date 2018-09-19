@@ -4,6 +4,8 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import org.jdatepicker.impl.JDatePickerImpl;
+
 import com.troy.labgrader.Utils;
 import com.troy.labgrader.lab.*;
 
@@ -48,6 +50,9 @@ public class CourseViewer extends JPanel {
 		private JTextField name = new JTextField();
 		private JViewport output = new JViewport();
 		private JTextArea outputArea = new JTextArea(30, 40);
+		private JDatePickerImpl datePicker = new JDatePickerImpl();
+		private JTimePicker time = new JTimePicker();
+		
 		private Lab lab;
 
 		public LabEditor() {
@@ -56,10 +61,12 @@ public class CourseViewer extends JPanel {
 		
 		public LabEditor(Lab lab) {
 			output.setView(outputArea);
-			
+			datePicker.getModel().setDate(year, month, day);
+				
 			GridBagConstraints c = new GridBagConstraints();
 			
 			add(new JLabel("Lab Name: "), c);
+			
 			
 			c.gridx++;
 			add(name, c);
