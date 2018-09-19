@@ -129,28 +129,28 @@ public class FileUtils {
 
 	public static String removeBannedCharacters(String part) {
 		switch (OSType.get()) {
-		case Windows:// Not allowed characters = /\:*?"<>|
-			part = part.replace('/', '.');
+		case Windows:// Not allowed characters = /\:*?"<>| format:off
+			part = part.replace('/',  '.');
 			part = part.replace('\\', '.');
-			part = part.replace(':', '.');
-			part = part.replace('*', '.');
-			part = part.replace('?', '.');
+			part = part.replace(':',  '.');
+			part = part.replace('*',  '.');
+			part = part.replace('?',  '.');
 			part = part.replace('\"', '.');
-			part = part.replace('<', '.');
-			part = part.replace('>', '.');
-			part = part.replace('|', '.');
+			part = part.replace('<',  '.');
+			part = part.replace('>',  '.');
+			part = part.replace('|',  '.');
 			break;
 		case Mac:
-			part = part.replace('/', '.');
+			part = part.replace('/',  '.');
 			part = part.replace('\\', '.');
-			part = part.replace(':', '.');
+			part = part.replace(':',  '.');
 			break;
 		case Linux:
-			part = part.replace('/', '.');
+			part = part.replace('/',  '.');
 			part = part.replace('\\', '.');
-			part = part.replace(':', '.');
+			part = part.replace(':',  '.');
 			break;
-		case Other:
+		case Other://format:on
 			break;
 		}
 		return part;
