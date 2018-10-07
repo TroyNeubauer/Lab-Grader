@@ -32,7 +32,13 @@ public class LabEditor extends JPanel {
 				throw new RuntimeException(e);
 			}
 		}
+		frame.setVisible(false);
+		frame.dispose();
 		return editor.getLab();
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(newLab());
 	}
 	
 	public LabEditor(Lab lab) {
@@ -148,12 +154,10 @@ public class LabEditor extends JPanel {
 	}
 
 	private void update() {
-		System.out.println("updating...");
 		lab.setOutput(output.getText());
 		lab.setOpen(openDate.getDate(openTime.getSelection()));
 		lab.setClose(closeDate.getDate(closeTime.getSelection()));
 		lab.setName(name.getText());
-		System.out.println(lab + "\n");
 	}
 
 	public Lab getLab() {
