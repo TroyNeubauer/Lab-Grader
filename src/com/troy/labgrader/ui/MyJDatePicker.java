@@ -20,6 +20,10 @@ public class MyJDatePicker extends JDatePickerImpl {
 	public MyJDatePicker() {
 		super(new JDatePanelImpl(new UtilDateModel(), DEFAULT_PROPS), new DateLabelFormatter());
 	}
+	
+	public Date getDate(int totalMins) {
+		return new Date(getModel().getYear() - 1900, getModel().getMonth(), getModel().getDay(), totalMins / 60, totalMins % 60, 0);
+	}
 
 	public static class DateLabelFormatter extends AbstractFormatter {
 
