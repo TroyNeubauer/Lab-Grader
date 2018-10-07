@@ -14,6 +14,12 @@ public class Main {
 
 	public static void main(String[] args) {
 		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
+			throw new RuntimeException(e1);
+		}
+
+		try {
 			int result;
 			if (args.length == 1) {
 				result = MiscUtil.getIntOrDefaultValue(args[0], "Invalid argument. Must be integer", Integer.MIN_VALUE);

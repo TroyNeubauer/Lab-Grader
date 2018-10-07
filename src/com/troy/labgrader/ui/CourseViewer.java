@@ -4,8 +4,6 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import org.jdatepicker.impl.JDatePickerImpl;
-
 import com.troy.labgrader.Utils;
 import com.troy.labgrader.lab.*;
 
@@ -42,47 +40,69 @@ public class CourseViewer extends JPanel {
 		bottom.add(newLab);
 		add(bottom, BorderLayout.SOUTH);
 		add(pane, BorderLayout.CENTER);
-
 	}
 
 	private static class LabEditor extends JPanel {
 
-		private JTextField name = new JTextField();
+		private JTextField name = new JTextField("", 30);
 		private JViewport output = new JViewport();
 		private JTextArea outputArea = new JTextArea(30, 40);
-		private JDatePickerImpl datePicker = new JDatePickerImpl();
-		private JTimePicker time = new JTimePicker();
-		
+
+		private JTimePicker openTime = new JTimePicker(), closeTime = new JTimePicker();
+		private MyJDatePicker openDate = new MyJDatePicker(), closeDate = new MyJDatePicker();
+
 		private Lab lab;
 
 		public LabEditor() {
 			this(new Lab());
 		}
-		
+
 		public LabEditor(Lab lab) {
+			super(new GridBagLayout());
 			output.setView(outputArea);
-			datePicker.getModel().setDate(year, month, day);
-				
+			
+			
 			GridBagConstraints c = new GridBagConstraints();
-			
+
 			add(new JLabel("Lab Name: "), c);
-			
-			
 			c.gridx++;
 			add(name, c);
-			
-			c.gridy++;
-			c.gridx = 0;
-			add(new JLabel("Desired Output: "), c);
-			
-			c.gridy++;
-			
 
+			//nextLine(c);
+			//add(new JLabel("Desired Output: "), c);
+			
+			nextLine(c);
+			add(output, c);
+			
+			nextLine(c);
+			add(new JLabel("Opens:"), c);
+			c.gridx++;
+			add(openDate, c);
+			c.gridx++;
+			add(openTime, c);
+			
+			nextLine(c);
+			add(new JLabel("Closes:"), c);
+			c.gridx++;
+			add(closeDate, c);
+			c.gridx++;
+			add(closeTime, c);
+			this.validate();
+		}
+
+		private void nextLine(GridBagConstraints c) {
+			c.gridx = 0;
+			c.gridy++;
 		}
 	}
 
 	private void showNewLabDialog() {
-
+		JFrame labWindow = new JFrame("Create New Lab");
+		labWindow.add(new LabEditor());
+		labWindow.setSize(600, 800);
+		labWindow.setLocationRelativeTo(null);
+		labWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		labWindow.setVisible(true);
 	}
 
 	protected void setCourseName(String name) {
