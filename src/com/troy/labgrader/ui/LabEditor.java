@@ -6,6 +6,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import java.awt.BorderLayout;
 import javax.swing.JTextField;
+import javax.swing.JTextArea;
+import javax.swing.JList;
+import javax.swing.JButton;
 
 public class LabEditor {
 
@@ -60,5 +63,19 @@ public class LabEditor {
 		JLabel lblClosingDate = new JLabel("Closing date");
 		lblClosingDate.setBounds(12, 125, 92, 16);
 		frame.getContentPane().add(lblClosingDate);
+		
+		JLabel lblOutput = new JLabel("Output:");
+		lblOutput.setBounds(260, 156, 46, 14);
+		frame.getContentPane().add(lblOutput);
+		
+		JTextArea textArea = new JTextArea();
+		textArea.setColumns(40);
+		textArea.setRows(40);
+		textArea.setBounds(12, 181, 570, 417);
+		frame.getContentPane().add(textArea);
+		
+		JButton btnAdd = new JButton("Add");
+		btnAdd.setBounds(245, 609, 89, 23);
+		frame.getContentPane().add(btnAdd);
 	}
 }
