@@ -19,33 +19,50 @@ public class MyJDatePicker extends JDatePickerImpl {
 
 	public MyJDatePicker() {
 		super(new JDatePanelImpl(new UtilDateModel(), DEFAULT_PROPS), new DateLabelFormatter());
+		setDate(Calendar.getInstance());
+		
+	}
+
+	public Date getDate(int totalMins) {
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.YEAR, getModel().getYear());
+		c.set(Calendar.MONTH, getModel().getMonth());
+		c.set(Calendar.DAY_OF_MONTH, getModel().getDay());
+		c.set(Calendar.HOUR_OF_DAY, totalMins / 60);
+		c.set(Calendar.MINUTE, totalMins % 60);
+		return c.getTime();
+	}
+
+	public void setDate(Date date) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(date);
+		setDate(c);
 	}
 	
-	public Date getDate(int totalMins) {
-		return new Date(getModel().getYear() - 1900, getModel().getMonth(), getModel().getDay(), totalMins / 60, totalMins % 60, 0);
+	public void setDate(Calendar c) {		
+		getModel().setDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
 	}
 
 	public static class DateLabelFormatter extends AbstractFormatter {
 
-	    private String datePattern = "MM/dd/yyyy";
-	    private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
+		private String datePattern = "MM/dd/yyyy";
+		private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
 
-	    @Override
-	    public Object stringToValue(String text) throws ParseException {
-	        return dateFormatter.parseObject(text);
-	    }
+		@Override
+		public Object stringToValue(String text) throws ParseException {
+			return dateFormatter.parseObject(text);
+		}
 
-	    @Override
-	    public String valueToString(Object value) throws ParseException {
-	        if (value != null) {
-	            Calendar cal = (Calendar) value;
-	            return dateFormatter.format(cal.getTime());
-	        }
+		@Override
+		public String valueToString(Object value) throws ParseException {
+			if (value != null) {
+				Calendar cal = (Calendar) value;
+				return dateFormatter.format(cal.getTime());
+			}
 
-	        return "";
-	    }
+			return "";
+		}
 
 	}
 
-	
 }

@@ -18,7 +18,7 @@ public class Main {
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
 			throw new RuntimeException(e1);
 		}
-
+		System.out.println(FileUtils.getNumebrOfEmails());
 		try {
 			int result;
 			if (args.length == 1) {

@@ -60,7 +60,8 @@ public class FileUtils {
 			stream = new DataInputStream(new FileInputStream(NUMBER_OF_EMAILS_FILE));
 			return stream.readLong();
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			setNumberOfEmails(0);
+			return 0;
 		} finally {
 			if (stream != null) {
 				try {
@@ -75,6 +76,7 @@ public class FileUtils {
 	public static void setNumberOfEmails(long count) {
 		DataOutputStream stream = null;
 		try {
+			NUMBER_OF_EMAILS_FILE.getParentFile().mkdirs();
 			stream = new DataOutputStream(new FileOutputStream(NUMBER_OF_EMAILS_FILE));
 			stream.writeLong(count);
 		} catch (Exception e) {

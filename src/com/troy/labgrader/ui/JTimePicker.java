@@ -29,7 +29,7 @@ public class JTimePicker extends JComboBox {
 		c.set(0, 0, 0, minutes / 60, minutes % 60);
 		return c;
 	}
-	
+
 	/**
 	 * Returns the number of minutes from 12am or 00:00.
 	 */
@@ -42,19 +42,27 @@ public class JTimePicker extends JComboBox {
 	}
 
 	public void setToNow() {
+		Calendar c = Calendar.getInstance();
+		setTo(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE));
+	}
+
+	public void setTo(int hours, int mins) {
 		String bestStr = null;
 		int best = -1;
-		Calendar c = Calendar.getInstance();
-		int nowMinutes = c.get(Calendar.HOUR_OF_DAY) * 60 + c.get(Calendar.MINUTE);
-		for(Entry<String, Integer> entry : times.entrySet()) {
+		int nowMinutes = hours * 60 + mins;
+		for (Entry<String, Integer> entry : times.entrySet()) {
 			int lastDiff = nowMinutes - best, nowDif = nowMinutes - entry.getValue();
-			if(best == -1 || (lastDiff < 0 && nowDif >= 0) || (nowDif < lastDiff && nowDif >= 0)) {
+			if (best == -1 || (lastDiff < 0 && nowDif >= 0) || (nowDif < lastDiff && nowDif >= 0)) {
 				best = entry.getValue();
 				bestStr = entry.getKey();
 			}
 		}
-		if(best != -1) {
+		if (best != -1) {
 			setSelectedItem(bestStr);
 		}
+	}
+
+	public void setTime(Date close) {
+		setTo(close.getHours(), close.getMinutes());
 	}
 }

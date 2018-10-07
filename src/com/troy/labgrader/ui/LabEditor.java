@@ -15,45 +15,64 @@ public class LabEditor extends JPanel {
 	private JTimePicker openTime, closeTime;
 	private MyJDatePicker openDate, closeDate;
 	private Lab lab;
+	private CourseViewer parent;
+
 
 	public static Lab newLab() {
-		JFrame frame = new JFrame("New Lab");
-		AtomicBoolean done = new AtomicBoolean(false);
-		LabEditor editor = new LabEditor(null, true, () -> done.set(true));
+		JFrame frame;
+		LabEditor editor;
+		final AtomicBoolean done = new AtomicBoolean(false), complete = new AtomicBoolean(true);
+		System.out.println(Thread.currentThread());
+		frame = new JFrame("New Lab");
+		editor = new LabEditor(null, true, null, () -> done.set(true));
 		frame.add(editor);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(650, 700);
+		frame.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				complete.set(false);
+				done.set(true);
+				System.out.println("closing");
+			};
+		});
+		frame.setResizable(false);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.setVisible(true);
-
+		System.out.println("waiting...");
 		while (done.get() == false) {
 			try {
 				Thread.sleep(10);
+				frame.repaint();
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
 		}
 		frame.setVisible(false);
 		frame.dispose();
-		return editor.getLab();
+		frame = null;
+		if (complete.get())
+			return editor.getLab();
+		else
+			return null;
 	}
-	
+
 	public static void main(String[] args) {
 		System.out.println(newLab());
 	}
-	
-	public LabEditor(Lab lab) {
-		this(lab, false, null);
+
+	public LabEditor(Lab lab, CourseViewer parent) {
+		this(lab, false, parent, null);
 	}
 
-	private LabEditor(Lab origionalLab, boolean window, Runnable onCreate) {
+	private LabEditor(Lab origionalLab, boolean window, CourseViewer parent, Runnable onCreate) {
 		super();
+		this.parent = parent;
 		super.setLayout(null);
-		if(origionalLab == null) {
+		if (origionalLab == null) {
 			this.lab = new Lab();
 		} else {
 			this.lab = origionalLab;
 		}
-		
+
 		JLabel lblLabName = new JLabel("Lab Name:");
 		lblLabName.setBounds(242, 13, 92, 16);
 		add(lblLabName);
@@ -151,6 +170,17 @@ public class LabEditor extends JPanel {
 				}
 			});
 		}
+		
+		if(origionalLab != null) {
+			name.setText(origionalLab.getName());
+			output.setText(origionalLab.getOutput());
+			
+			openDate.setDate(origionalLab.getOpen());
+			closeDate.setDate(origionalLab.getClose());
+			
+			openTime.setTime(origionalLab.getOpen());
+			closeTime.setTime(origionalLab.getClose());
+		}
 	}
 
 	private void update() {
@@ -158,6 +188,8 @@ public class LabEditor extends JPanel {
 		lab.setOpen(openDate.getDate(openTime.getSelection()));
 		lab.setClose(closeDate.getDate(closeTime.getSelection()));
 		lab.setName(name.getText());
+		if (parent != null)
+			parent.setLabName(lab, name.getText());
 	}
 
 	public Lab getLab() {

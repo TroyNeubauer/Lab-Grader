@@ -35,78 +35,44 @@ public class CourseViewer extends JPanel {
 		bottom.add(deleteCourse);
 		JButton newLab = new JButton("New Lab");
 		newLab.addActionListener((e) -> {
-			showNewLabDialog();
+			new Thread(() -> {
+				Lab lab = LabEditor.newLab();
+				if (lab != null)
+					addLab(lab, true);
+			}).start();
 		});
 		bottom.add(newLab);
 		add(bottom, BorderLayout.SOUTH);
 		add(pane, BorderLayout.CENTER);
-	}
 
-	private static class LabEditor extends JPanel {
-
-		private JTextField name = new JTextField("", 30);
-		private JViewport output = new JViewport();
-		private JTextArea outputArea = new JTextArea(30, 40);
-
-		private JTimePicker openTime = new JTimePicker(), closeTime = new JTimePicker();
-		private MyJDatePicker openDate = new MyJDatePicker(), closeDate = new MyJDatePicker();
-
-		private Lab lab;
-
-		public LabEditor() {
-			this(new Lab());
-		}
-
-		public LabEditor(Lab lab) {
-			super(new GridBagLayout());
-			output.setView(outputArea);
-			
-			
-			GridBagConstraints c = new GridBagConstraints();
-
-			add(new JLabel("Lab Name: "), c);
-			c.gridx++;
-			add(name, c);
-
-			//nextLine(c);
-			//add(new JLabel("Desired Output: "), c);
-			
-			nextLine(c);
-			add(output, c);
-			
-			nextLine(c);
-			add(new JLabel("Opens:"), c);
-			c.gridx++;
-			add(openDate, c);
-			c.gridx++;
-			add(openTime, c);
-			
-			nextLine(c);
-			add(new JLabel("Closes:"), c);
-			c.gridx++;
-			add(closeDate, c);
-			c.gridx++;
-			add(closeTime, c);
-			this.validate();
-		}
-
-		private void nextLine(GridBagConstraints c) {
-			c.gridx = 0;
-			c.gridy++;
+		for (Lab lab : course.getLabs()) {
+			addLab(lab, false);
 		}
 	}
 
-	private void showNewLabDialog() {
-		JFrame labWindow = new JFrame("Create New Lab");
-		labWindow.add(new LabEditor());
-		labWindow.setSize(600, 800);
-		labWindow.setLocationRelativeTo(null);
-		labWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		labWindow.setVisible(true);
+	private void addLab(Lab lab, boolean toFile) {
+		if (toFile)
+			course.getLabs().add(lab);
+		pane.addTab(lab.getName(), new LabEditor(lab, this));
 	}
 
 	protected void setCourseName(String name) {
 		course.setName(name);
 		parent.getPane().setTitleAt(parent.getPane().getSelectedIndex(), name);
+	}
+
+	public void setLabName(Lab lab, String text) {
+		System.out.println("about to set title");
+		for (int i = 0; i < pane.getTabCount(); i++) {
+			Component raw = pane.getComponent(i);
+			if (raw instanceof LabEditor) {
+				LabEditor editor = (LabEditor) raw;
+				if (editor.getLab().equals(lab)) {
+					pane.setTitleAt(i, text);
+					System.out.println("set title " + text);
+					break;
+				}
+			}
+		}
 	}
 }
