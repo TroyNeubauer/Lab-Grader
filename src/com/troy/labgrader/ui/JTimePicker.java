@@ -16,7 +16,6 @@ public class JTimePicker extends JComboBox {
 
 	public JTimePicker(int minHour, int minMinute, int maxHour, int maxMinute, int minuteIncrement) {
 		SimpleDateFormat format = new SimpleDateFormat("hh:mm aa");
-
 		for (int totalMin = minMinute + minHour * 60; totalMin <= maxHour * 60 + maxMinute; totalMin += minuteIncrement) {
 			String time = format.format(toCalendar(totalMin).getTime());
 			times.put(time, totalMin);

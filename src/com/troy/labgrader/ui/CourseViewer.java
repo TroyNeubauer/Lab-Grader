@@ -51,8 +51,10 @@ public class CourseViewer extends JPanel {
 	}
 
 	private void addLab(Lab lab, boolean toFile) {
+		System.out.println("adding lab " + lab);
 		if (toFile)
 			course.getLabs().add(lab);
+		System.out.println("name " + lab.getName());
 		pane.addTab(lab.getName(), new LabEditor(lab, this));
 	}
 

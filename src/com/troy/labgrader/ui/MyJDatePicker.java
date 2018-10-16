@@ -9,6 +9,9 @@ import org.jdatepicker.impl.*;
 
 public class MyJDatePicker extends JDatePickerImpl {
 	private static final Properties DEFAULT_PROPS;
+	private static final String DATE_FORMAT = "MM/dd/yyyy";
+	
+	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT);
 
 	static {
 		DEFAULT_PROPS = new Properties();
@@ -41,12 +44,10 @@ public class MyJDatePicker extends JDatePickerImpl {
 	
 	public void setDate(Calendar c) {		
 		getModel().setDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+		super.getJFormattedTextField().setText(dateFormatter.format(c.getTime()));
 	}
 
 	public static class DateLabelFormatter extends AbstractFormatter {
-
-		private String datePattern = "MM/dd/yyyy";
-		private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
 
 		@Override
 		public Object stringToValue(String text) throws ParseException {

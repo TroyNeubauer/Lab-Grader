@@ -13,12 +13,15 @@ public class Main {
 	public static Window window;
 
 	public static void main(String[] args) {
+		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
 			throw new RuntimeException(e1);
 		}
+		
 		System.out.println(FileUtils.getNumebrOfEmails());
+		
 		try {
 			int result;
 			if (args.length == 1) {
@@ -82,5 +85,8 @@ public class Main {
 			Utils.showError(e);
 		}
 
+	}
+
+	private static void letters(char c) {
 	}
 }
