@@ -17,20 +17,23 @@ public class LabGraderFileViewer extends JPanel {
 	public LabGraderFileViewer(LabGraderFile file) {
 		super(new BorderLayout());
 		this.file = file;
-		for(Year year : file.getYears()) {
-			addYear(year, false);
-		}
-		JButton newYear = new JButton("New Year");
-		newYear.addActionListener((e) -> showNewYearDialog());
-		
-		bottom.add(newYear);
+		SwingUtilities.invokeLater(() -> {
+			for (Year year : file.getYears()) {
+				addYear(year, false);
+			}
+			JButton newYear = new JButton("New Year");
+			newYear.addActionListener((e) -> showNewYearDialog());
 
-		add(bottom, BorderLayout.SOUTH);
-		add(pane, BorderLayout.NORTH);
+			bottom.setMaximumSize(new Dimension(10000, 50));
+			bottom.add(newYear);
 
-		if (file.getYears().isEmpty()) {
-			showNewYearDialog();
-		}
+			add(bottom, BorderLayout.SOUTH);
+			add(pane, BorderLayout.CENTER);
+
+			if (file.getYears().isEmpty()) {
+				showNewYearDialog();
+			}
+		});
 	}
 
 	private void addYear(Year year, boolean addToFile) {
@@ -53,6 +56,11 @@ public class LabGraderFileViewer extends JPanel {
 	}
 
 	public void close() {
+		for(int i = 0; i < pane.getTabCount(); i++) {
+			if(pane.getComponentAt(i) instanceof YearViewer) {
+				((YearViewer) pane.getComponentAt(i)).onClose();
+			}
+		}
 		file.close();
 	}
 
