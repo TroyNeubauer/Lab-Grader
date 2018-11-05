@@ -12,7 +12,6 @@ import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.troy.labgrader.*;
-import com.troy.labgrader.email.Student;
 
 public class FieldTabel<T> implements TableModel {
 
@@ -87,10 +86,9 @@ public class FieldTabel<T> implements TableModel {
 						throw new RuntimeException(e3);
 					}
 				}
-				throw new RuntimeException(e2);
 			}
 		}
-		fireEvent(new TableModelEvent(this, data.size() - 1, data.size(), 0, TableModelEvent.INSERT));
+		fireEvent(new TableModelEvent(this, data.size() - 2, data.size() - 1, 0, TableModelEvent.INSERT));
 
 	}
 

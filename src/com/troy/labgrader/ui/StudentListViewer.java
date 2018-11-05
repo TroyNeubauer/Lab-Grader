@@ -116,7 +116,7 @@ public class StudentListViewer extends JPanel {
 	}
 
 	public void addStudent(int period, String name, String email, int id) {
-		tabel.add(new Student(period, name, email, id));
+		tabel.add(new Student(name, id, period, email));
 	}
 
 }

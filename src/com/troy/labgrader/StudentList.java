@@ -1,11 +1,6 @@
 package com.troy.labgrader;
 
-import java.io.*;
 import java.util.*;
-
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.troy.labgrader.email.Student;
 
@@ -23,7 +18,7 @@ public class StudentList {
 	}
 
 	public void addStudent(int periodNumber, String name, String email, int id) {
-		students.add(new Student(periodNumber, name, email, id));
+		students.add(new Student(name, id, periodNumber, email));
 	}
 
 	public int getPeriodWithName(String name) {
@@ -36,7 +31,7 @@ public class StudentList {
 
 	public int getPeriodWithEmail(String email) {
 		for (Student s : students) {
-			if (s.getEmail().equals(email))
+			if (s.hasEmail(email))
 				return s.getPeriod();
 		}
 		return -1;
