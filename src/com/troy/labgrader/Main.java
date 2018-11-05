@@ -4,7 +4,6 @@ import java.io.File;
 
 import javax.swing.*;
 
-import com.troy.labgrader.email.*;
 import com.troy.labgrader.lab.LabGraderFile;
 import com.troy.labgrader.ui.*;
 
@@ -13,15 +12,13 @@ public class Main {
 	public static Window window;
 
 	public static void main(String[] args) {
-		
+
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
 			throw new RuntimeException(e1);
 		}
-		
-		System.out.println(FileUtils.getNumebrOfEmails());
-		
+
 		try {
 			int result;
 			if (args.length == 1) {
@@ -70,17 +67,12 @@ public class Main {
 			} else {// Includes cancel and all other cases
 				System.exit(0);
 			}
-
-			EmailScanner scanner = new EmailScanner(new EmailListener() {
-				@Override
-				public void onEmail(Email email) {
-					try {
-						FileUtils.saveEmail(email);
-					} catch (Exception e) {
-						Utils.showError(e, "Unable to save email!");
-					}
-				}
-			});
+			/*
+			 * EmailScanner scanner = new EmailScanner(new EmailListener() {
+			 * 
+			 * @Override public void onEmail(Email email) { try { FileUtils.saveEmail(email); } catch (Exception e) { Utils.showError(e,
+			 * "Unable to save email!"); } } });
+			 */
 		} catch (Exception e) {
 			Utils.showError(e);
 		}

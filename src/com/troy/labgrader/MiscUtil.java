@@ -5,9 +5,9 @@ import java.lang.reflect.*;
 import java.net.URISyntaxException;
 import java.nio.*;
 import java.util.*;
+import java.util.Map.Entry;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.logging.log4j.core.pattern.ProcessIdPatternConverter;
+import org.joda.time.*;
 
 import sun.misc.Unsafe;
 
@@ -755,7 +755,7 @@ public class MiscUtil {
 		if (dataType == double.class || dataType == Double.class) {
 			return Double.BYTES;
 		}
-		return 4; // default for 32-bit memory pointer
+		return unsafe.addressSize();
 	}
 
 	public static Field[] getAllNonTransientFields(Class<?> type) {
@@ -768,7 +768,7 @@ public class MiscUtil {
 			for (Field field : type.getDeclaredFields()) {
 				if (Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers()))
 					continue;// Skip - we don't care
-				
+
 				fields.add(field);
 			}
 			type = type.getSuperclass();
@@ -776,6 +776,75 @@ public class MiscUtil {
 		Field[] result = new Field[fields.size()];
 		fields.toArray(result);
 		return result;
+	}
+
+	public static String getTimeDifference(Instant first, Instant second) {
+		return getTimeDifference(first, second, false);
+	}
+
+	public static String getTimeDifference(Instant first, Instant second, boolean displaySeconds) {
+		StringBuilder sb = new StringBuilder();
+
+		Period p;
+		Interval interval;
+		if (first.isBefore(second)) {
+			interval = new Interval(first, second);
+			p = new Period(first, second);
+		} else {
+			interval = new Interval(second, first);
+			p = new Period(second, first);
+		}
+
+		LinkedHashMap<Integer, String[]> map = new LinkedHashMap<Integer, String[]>();
+		//format:off
+		map.put(p.getYears(),   new String[] { "year",   "years"   });
+		map.put(p.getMonths(),  new String[] { "month",  "months"  });
+		map.put(p.getDays(),    new String[] { "day",    "days"    });
+		map.put(p.getHours(),   new String[] { "hour",   "hours"   });
+		map.put(p.getMinutes(), new String[] { "minute", "minutes" });
+		map.put(p.getSeconds(), new String[] { "second", "seconds" });
+		//format:on
+		int i = 0;
+		int count = 0;
+
+		for (Entry<Integer, String[]> entry : map.entrySet()) {
+			boolean isSeconds = entry.getValue()[0].equals("second");
+			if (!isSeconds && entry.getKey() != 0 || (isSeconds && displaySeconds)) {
+				count++;
+			}
+		}
+
+		for (Entry<Integer, String[]> entry : map.entrySet()) {
+			int amount = entry.getKey();
+			String[] kind = entry.getValue();
+			if (amount == 0)
+				continue;
+			boolean isSeconds = kind[0].equals("second");
+			if (!isSeconds || (isSeconds && displaySeconds)) {
+				addAmountHelper(sb, amount, kind);
+				if (i != count - 1) {
+					if (i == count - 2) {// If we are on the second to last one
+						sb.append(" and ");
+					} else {
+						sb.append(',');
+						sb.append(' ');
+					}
+				}
+				i++;
+			}
+		}
+
+		return sb.toString();
+	}
+
+	private static void addAmountHelper(StringBuilder sb, int amount, String[] kind) {
+		sb.append(amount);
+		sb.append(' ');
+		if (amount == 1) {
+			sb.append(kind[0]);// singular
+		} else {
+			sb.append(kind[1]);// plural
+		}
 	}
 
 }
