@@ -1,8 +1,6 @@
 package com.troy.labgrader.lab;
 
 import java.io.*;
-import java.nio.channels.*;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 import com.troy.labgrader.FileUtils;
