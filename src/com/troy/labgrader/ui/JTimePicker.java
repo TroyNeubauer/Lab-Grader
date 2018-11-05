@@ -1,14 +1,14 @@
 package com.troy.labgrader.ui;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.*;
-import java.util.Map.Entry;
 
 import javax.swing.JComboBox;
 
-public class JTimePicker extends JComboBox {
+public class JTimePicker extends JComboBox<String> {
 
-	private HashMap<String, Integer> times = new HashMap<String, Integer>();
+	private HashMap<String, LocalTime> times = new HashMap<String, LocalTime>();
 
 	public JTimePicker() {
 		this(0, 0, 23, 59, 30);
@@ -16,9 +16,9 @@ public class JTimePicker extends JComboBox {
 
 	public JTimePicker(int minHour, int minMinute, int maxHour, int maxMinute, int minuteIncrement) {
 		SimpleDateFormat format = new SimpleDateFormat("hh:mm aa");
-		for (int totalMin = minMinute + minHour * 60; totalMin <= maxHour * 60 + maxMinute; totalMin += minuteIncrement) {
+		for (int totalMin = minMinute + minHour * 60; totalMin < maxHour * 60 + maxMinute; totalMin += minuteIncrement) {
 			String time = format.format(toCalendar(totalMin).getTime());
-			times.put(time, totalMin);
+			times.put(time, LocalTime.of(totalMin / 60, totalMin % 60));
 			addItem(time);
 		}
 	}
@@ -32,36 +32,38 @@ public class JTimePicker extends JComboBox {
 	/**
 	 * Returns the number of minutes from 12am or 00:00.
 	 */
-	public int getSelection() {
+	public LocalTime getSelection() {
 		int index = getSelectedIndex();
 		if (index != -1)
 			return times.get(getModel().getElementAt(index));
 		else
-			return -1;
+			return null;
 	}
 
 	public void setToNow() {
-		Calendar c = Calendar.getInstance();
-		setTo(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE));
+		LocalTime date = LocalTime.now();
+		setTo(date.getHour(), date.getMinute());
 	}
 
 	public void setTo(int hours, int mins) {
-		String bestStr = null;
-		int best = -1;
-		int nowMinutes = hours * 60 + mins;
-		for (Entry<String, Integer> entry : times.entrySet()) {
-			int lastDiff = nowMinutes - best, nowDif = nowMinutes - entry.getValue();
-			if (best == -1 || (lastDiff < 0 && nowDif >= 0) || (nowDif < lastDiff && nowDif >= 0)) {
-				best = entry.getValue();
-				bestStr = entry.getKey();
+		LocalTime toHit = LocalTime.of(hours, mins);
+		boolean found = false;
+		for (int i = 0; i < getItemCount() - 1; i++) {
+			LocalTime currentTime = times.get(getItemAt(i));
+			LocalTime nextTime = times.get(getItemAt(i + 1));
+			if ((currentTime.isBefore(toHit) || currentTime.equals(toHit)) && nextTime.isAfter(toHit)) {
+				setSelectedIndex(i);
+				found = true;
+				break;
 			}
 		}
-		if (best != -1) {
-			setSelectedItem(bestStr);
+		if (!found && getItemCount() > 0) {
+			setSelectedIndex(0);
 		}
+
 	}
 
-	public void setTime(Date close) {
-		setTo(close.getHours(), close.getMinutes());
+	public void setTime(LocalTime time) {
+		setTo(time.getHour(), time.getMinute());
 	}
 }

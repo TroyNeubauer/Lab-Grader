@@ -1,17 +1,17 @@
 package com.troy.labgrader.ui;
 
-import java.text.*;
-import java.util.*;
-
-import javax.swing.JFormattedTextField.AbstractFormatter;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.Properties;
 
 import org.jdatepicker.impl.*;
 
+import com.troy.labgrader.DateTimeModel;
+
 public class MyJDatePicker extends JDatePickerImpl {
 	private static final Properties DEFAULT_PROPS;
-	private static final String DATE_FORMAT = "MM/dd/yyyy";
-	
-	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT);
+
+	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/uu");
 
 	static {
 		DEFAULT_PROPS = new Properties();
@@ -21,49 +21,27 @@ public class MyJDatePicker extends JDatePickerImpl {
 	}
 
 	public MyJDatePicker() {
-		super(new JDatePanelImpl(new UtilDateModel(), DEFAULT_PROPS), new DateLabelFormatter());
-		setDate(Calendar.getInstance());
-		
+		super(new JDatePanelImpl(new DateTimeModel(), DEFAULT_PROPS), null);// 11/26/2018
+		getModel().addChangeListener((e) -> {
+			super.getJFormattedTextField().setText(getModel().getValue().format(formatter));
+		});
 	}
 
-	public Date getDate(int totalMins) {
-		Calendar c = Calendar.getInstance();
-		c.set(Calendar.YEAR, getModel().getYear());
-		c.set(Calendar.MONTH, getModel().getMonth());
-		c.set(Calendar.DAY_OF_MONTH, getModel().getDay());
-		c.set(Calendar.HOUR_OF_DAY, totalMins / 60);
-		c.set(Calendar.MINUTE, totalMins % 60);
-		return c.getTime();
+	public LocalDate getDate() {
+		return (LocalDate) getModel().getValue();
 	}
 
-	public void setDate(Date date) {
-		Calendar c = Calendar.getInstance();
-		c.setTime(date);
-		setDate(c);
-	}
-	
-	public void setDate(Calendar c) {		
-		getModel().setDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
-		super.getJFormattedTextField().setText(dateFormatter.format(c.getTime()));
+	public LocalDateTime getDate(LocalTime time) {
+		return time.atDate(getDate());
 	}
 
-	public static class DateLabelFormatter extends AbstractFormatter {
+	public void setDate(LocalDate dateTime) {
+		getModel().setValue(dateTime);
+	}
 
-		@Override
-		public Object stringToValue(String text) throws ParseException {
-			return dateFormatter.parseObject(text);
-		}
-
-		@Override
-		public String valueToString(Object value) throws ParseException {
-			if (value != null) {
-				Calendar cal = (Calendar) value;
-				return dateFormatter.format(cal.getTime());
-			}
-
-			return "";
-		}
-
+	@Override
+	public DateTimeModel getModel() {
+		return (DateTimeModel) super.getModel();
 	}
 
 }
