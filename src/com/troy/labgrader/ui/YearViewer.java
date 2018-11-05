@@ -21,10 +21,20 @@ public class YearViewer extends JPanel {
 		JButton newCourse = new JButton("New Course");
 		newCourse.addActionListener((e) -> showNewCourseDialog());
 		bottom.add(newCourse);
+		bottom.setMaximumSize(new Dimension(10000, 100));
 
+		pane.addTab("Students List", new StudentListViewer(year.getStudents()));
+		pane.setBorder(BorderFactory.createTitledBorder("Courses"));
 		for (Course c : year.getCourses()) {
 			addCourse(c, false);
 		}
+		int selectedItem = year.getSelectedTab();
+		if (selectedItem == -1) {
+			pane.setSelectedIndex(0);// Select the students list
+		} else if (selectedItem >= 0 && selectedItem < year.getCourses().size()) {
+			pane.setSelectedIndex(selectedItem + 1);// +1 to account for the students list being the first item
+		}
+		year.setSelectedTab(-1);// Reset in case somthing goes bad
 
 		JButton editName = new JButton("Edit Year Name");
 		editName.addActionListener((e) -> {
@@ -33,11 +43,9 @@ public class YearViewer extends JPanel {
 				setYearName(s);
 		});
 		bottom.add(editName);
-		pane.addTab("Students List", new StudentListViewer(year.getStudents()));
-		pane.setBorder(BorderFactory.createTitledBorder("Courses"));
 
 		add(bottom, BorderLayout.SOUTH);
-		add(pane, BorderLayout.NORTH);
+		add(pane, BorderLayout.CENTER);
 	}
 
 	protected void setYearName(String name) {
@@ -64,6 +72,10 @@ public class YearViewer extends JPanel {
 		year.getCourses().remove(course);
 		pane.removeTabAt(pane.getSelectedIndex());
 
+	}
+
+	public void onClose() {
+		year.setSelectedTab(pane.getSelectedIndex() - 1);// Shift from range [0, courses.size()] to [-1,courses.size())
 	}
 
 }

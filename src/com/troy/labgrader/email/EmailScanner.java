@@ -63,7 +63,7 @@ public class EmailScanner implements Runnable {
 				return new PasswordAuthentication(userName, password);
 			}
 		});
-		
+
 		try {
 			store = session.getStore("pop3");
 			store.connect(userName, password);
@@ -87,21 +87,22 @@ public class EmailScanner implements Runnable {
 				e.printStackTrace();
 				logger.fatal("Unable to get the inbox folder!");
 				logger.catching(Level.FATAL, e);
+				Thread.sleep(15000);
 			}
 
 			Message[] messages = inbox.getMessages();
 			for (int i = 0; i < messages.length; i++) {
 				Message message = messages[i];
 				Address[] from = message.getFrom();
-				if(from.length == 1) {
-					if(from[0].toString().equals(userName))
+				if (from.length == 1) {
+					if (from[0].toString().equals(userName))
 						continue;
 				}
 				logger.info("Message #" + (i + 1));
 				logger.info("From: " + Arrays.toString(message.getFrom()));
 				logger.info("Subject: " + message.getSubject());
 				Email email = Email.fromMessage(message);
-				//email.reply("LAB SUBMISSION FAILURE\nLab failed to compile!\n\nPlease re-submit a working lab", true);
+				// email.reply("LAB SUBMISSION FAILURE\nLab failed to compile!\n\nPlease re-submit a working lab", true);
 				listener.onEmail(email);
 			}
 		} catch (Exception e) {

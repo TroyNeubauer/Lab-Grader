@@ -5,11 +5,11 @@ import java.util.List;
 import com.troy.labgrader.StudentList;
 
 public class Year {
-	public static final String YEARS_FILE = "years.dat";
 
 	private List<Course> courses;
 	private StudentList students = new StudentList();
 	private String name;
+	private int selectedTab = -1;//-1 for student's list, [0,students.size()) to indicate selected course index
 
 	public Year(List<Course> courses, String name) {
 		this.courses = courses;
@@ -34,6 +34,14 @@ public class Year {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public int getSelectedTab() {
+		return selectedTab;
+	}
+
+	public void setSelectedTab(int selectedTab) {
+		this.selectedTab = selectedTab;
 	}
 
 }

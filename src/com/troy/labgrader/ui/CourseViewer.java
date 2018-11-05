@@ -9,7 +9,7 @@ import com.troy.labgrader.lab.*;
 
 public class CourseViewer extends JPanel {
 
-	private Course course;
+	private final Course course;
 	private YearViewer parent;
 	private JTabbedPane pane;
 
@@ -30,15 +30,18 @@ public class CourseViewer extends JPanel {
 
 		JButton deleteCourse = new JButton("Delete Course");
 		deleteCourse.addActionListener((e) -> {
-			parent.removeCourse(course);
+			int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete course \"" + course.getName() + "\"?" + '\n' + "You cannot undo this operation",
+					"Delete \"" + course.getName() + "\"", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+			if (result == 0)
+				parent.removeCourse(course);
 		});
 		bottom.add(deleteCourse);
 		JButton newLab = new JButton("New Lab");
 		newLab.addActionListener((e) -> {
 			new Thread(() -> {
-				Lab lab = LabEditor.newLab();
-				if (lab != null)
-					addLab(lab, true);
+				LabData data = LabDataEditor.newLab();
+				if (data != null)
+					addLab(new Lab(data, new LabResults()), true);
 			}).start();
 		});
 		bottom.add(newLab);
@@ -51,11 +54,9 @@ public class CourseViewer extends JPanel {
 	}
 
 	private void addLab(Lab lab, boolean toFile) {
-		System.out.println("adding lab " + lab);
 		if (toFile)
 			course.getLabs().add(lab);
-		System.out.println("name " + lab.getName());
-		pane.addTab(lab.getName(), new LabEditor(lab, this));
+		pane.addTab(lab.getData().getName(), new LabViewer(lab, this));
 	}
 
 	protected void setCourseName(String name) {
@@ -63,15 +64,13 @@ public class CourseViewer extends JPanel {
 		parent.getPane().setTitleAt(parent.getPane().getSelectedIndex(), name);
 	}
 
-	public void setLabName(Lab lab, String text) {
-		System.out.println("about to set title");
+	public void setLabName(LabData lab, String text) {
 		for (int i = 0; i < pane.getTabCount(); i++) {
 			Component raw = pane.getComponent(i);
-			if (raw instanceof LabEditor) {
-				LabEditor editor = (LabEditor) raw;
+			if (raw instanceof LabViewer) {
+				LabViewer editor = (LabViewer) raw;
 				if (editor.getLab().equals(lab)) {
 					pane.setTitleAt(i, text);
-					System.out.println("set title " + text);
 					break;
 				}
 			}
