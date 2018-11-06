@@ -195,16 +195,17 @@ public class FileUtils {
 
 	public static void write(OutputStream stream, Object data) {
 		Output out = new Output(stream);
-		kryo.writeObject(out, data);
+		kryo.writeClassAndObject(out, data);
 		out.flush();
 	}
 
 	public static <T> T read(File file, Class<T> type) {
 		try {
 			Input in = new Input(new FileInputStream(file));
-			T obj = kryo.readObject(in, type);
+			Object obj = kryo.readClassAndObject(in);
+			assert type.isAssignableFrom(type);
 			in.close();
-			return obj;
+			return (T) obj;
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);
 		}

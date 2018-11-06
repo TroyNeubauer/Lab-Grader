@@ -5,9 +5,6 @@ import java.lang.reflect.*;
 import java.net.URISyntaxException;
 import java.nio.*;
 import java.util.*;
-import java.util.Map.Entry;
-
-import org.joda.time.*;
 
 import sun.misc.Unsafe;
 
@@ -777,16 +774,15 @@ public class MiscUtil {
 		fields.toArray(result);
 		return result;
 	}
+	/*
 
 	public static String getTimeDifference(Instant first, Instant second) {
 		return getTimeDifference(first, second, false);
 	}
-
 	public static String getTimeDifference(Instant first, Instant second, boolean displaySeconds) {
 		StringBuilder sb = new StringBuilder();
 
 		Period p;
-		Interval interval;
 		if (first.isBefore(second)) {
 			interval = new Interval(first, second);
 			p = new Period(first, second);
@@ -835,7 +831,7 @@ public class MiscUtil {
 		}
 
 		return sb.toString();
-	}
+	}*/
 
 	private static void addAmountHelper(StringBuilder sb, int amount, String[] kind) {
 		sb.append(amount);
