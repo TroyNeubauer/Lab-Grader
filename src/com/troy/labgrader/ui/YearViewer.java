@@ -78,4 +78,8 @@ public class YearViewer extends JPanel {
 		year.setSelectedTab(pane.getSelectedIndex() - 1);// Shift from range [0, courses.size()] to [-1,courses.size())
 	}
 
+	public Year getYear() {
+		return year;
+	}
+
 }

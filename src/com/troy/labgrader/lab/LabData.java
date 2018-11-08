@@ -1,14 +1,9 @@
 package com.troy.labgrader.lab;
 
-import java.text.SimpleDateFormat;
-import java.time.*;
-import java.time.format.DateTimeFormatter;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
 
 public class LabData {
-
-	private static final String DATE_FORMAT = "MM/dd/yyyy HH:mm:ss";
-
-	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT);
 
 	private String name, output;
 	private LocalDateTime open, close;
@@ -16,8 +11,8 @@ public class LabData {
 	public LabData() {
 		this.name = "<blank>";
 		this.output = "<blank>";
-		this.open = LocalDateTime.MIN;
-		this.close = LocalDateTime.MIN;
+		this.open = LocalDateTime.now();
+		this.close = LocalDateTime.now();
 	}
 
 	public LabData(LocalDateTime open, LocalDateTime close, String name, String output) {
@@ -89,7 +84,7 @@ public class LabData {
 
 	@Override
 	public String toString() {
-		return "Lab [name=" + name + ", output=" + output + ", open=" + open.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + ", close=" + close.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "]";
+		return "Lab [name=" + name + ", output=" + output + ", open=" + open.toString(DateTimeFormat.fullDateTime()) + ", close=" + close.toString(DateTimeFormat.fullDateTime()) + "]";
 	}
 
 	public LocalDateTime getOpen() {
@@ -106,6 +101,10 @@ public class LabData {
 
 	public void setClose(LocalDateTime close) {
 		this.close = close;
+	}
+
+	public void periodsUpdated(Course course, Year year) {
+		
 	}
 
 }

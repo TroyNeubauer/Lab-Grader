@@ -204,8 +204,10 @@ public class LabDataEditor extends JPanel {
 		lab.setOpen(openDate.getDate(openTime.getSelection()));
 		lab.setClose(closeDate.getDate(closeTime.getSelection()));
 		lab.setName(name.getText());
-		if (parent != null)
+		if (parent != null) {
 			parent.setLabName(lab, name.getText());
+			parent.updateLabData();
+		}
 	}
 
 	public LabData getLab() {

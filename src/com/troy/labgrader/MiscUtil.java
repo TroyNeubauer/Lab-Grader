@@ -6,6 +6,9 @@ import java.net.URISyntaxException;
 import java.nio.*;
 import java.util.*;
 
+import org.joda.time.*;
+import org.joda.time.format.*;
+
 import sun.misc.Unsafe;
 
 /**
@@ -774,72 +777,69 @@ public class MiscUtil {
 		fields.toArray(result);
 		return result;
 	}
-	/*
 
-	public static String getTimeDifference(Instant first, Instant second) {
-		return getTimeDifference(first, second, false);
-	}
-	public static String getTimeDifference(Instant first, Instant second, boolean displaySeconds) {
-		StringBuilder sb = new StringBuilder();
-
+	public static String getTimeDifference(LocalDateTime first, LocalDateTime second) {
+		Objects.requireNonNull(first);
+		Objects.requireNonNull(second);
 		Period p;
+		System.out.println("first " + first.toString(DateTimeFormat.mediumDateTime()));
+		System.out.println("second " + second.toString(DateTimeFormat.mediumDateTime()));
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 		if (first.isBefore(second)) {
-			interval = new Interval(first, second);
 			p = new Period(first, second);
 		} else {
-			interval = new Interval(second, first);
 			p = new Period(second, first);
 		}
-
-		LinkedHashMap<Integer, String[]> map = new LinkedHashMap<Integer, String[]>();
 		//format:off
-		map.put(p.getYears(),   new String[] { "year",   "years"   });
-		map.put(p.getMonths(),  new String[] { "month",  "months"  });
-		map.put(p.getDays(),    new String[] { "day",    "days"    });
-		map.put(p.getHours(),   new String[] { "hour",   "hours"   });
-		map.put(p.getMinutes(), new String[] { "minute", "minutes" });
-		map.put(p.getSeconds(), new String[] { "second", "seconds" });
-		//format:on
-		int i = 0;
-		int count = 0;
+		p = p.withSeconds(0);//no seconds or millis
+		p = p.withMillis(0);
+		return p.toString(PeriodFormat.getDefault());
+	}
 
-		for (Entry<Integer, String[]> entry : map.entrySet()) {
-			boolean isSeconds = entry.getValue()[0].equals("second");
-			if (!isSeconds && entry.getKey() != 0 || (isSeconds && displaySeconds)) {
-				count++;
-			}
-		}
 
-		for (Entry<Integer, String[]> entry : map.entrySet()) {
-			int amount = entry.getKey();
-			String[] kind = entry.getValue();
-			if (amount == 0)
-				continue;
-			boolean isSeconds = kind[0].equals("second");
-			if (!isSeconds || (isSeconds && displaySeconds)) {
-				addAmountHelper(sb, amount, kind);
-				if (i != count - 1) {
-					if (i == count - 2) {// If we are on the second to last one
-						sb.append(" and ");
-					} else {
-						sb.append(',');
-						sb.append(' ');
-					}
+	public static String toProperEnglishName(String javaName) {
+		if (javaName.toUpperCase().equals(javaName)) {// All letters are uppercase. Its the name of a constant
+			char[] result = new char[javaName.length()];
+			boolean lastWasSpace = true;// True to capitalize the first one
+			for (int i = 0; i < result.length; i++) {
+				char current = javaName.charAt(i);
+				if (Character.isLetter(current)) {
+					result[i] = lastWasSpace ? current : Character.toLowerCase(current);
+					lastWasSpace = false;
+				} else if (current == '_') {
+					result[i] = ' ';
+					lastWasSpace = true;
+				} else {// Must be something else. Maybe a digit?
+					result[i] = current;// So just assign it
+					lastWasSpace = false;
 				}
-				i++;
 			}
-		}
+			return new String(result);
+		} else {// probably camel case
+			if (javaName.indexOf(' ') != -1) {// bad... Can't be camel case because of spaces
+				return javaName;// Wrong
+			}
+			StringBuilder sb = new StringBuilder(javaName.length());
+			for (int i = 0; i < javaName.length(); i++) {
+				char current = javaName.charAt(i);
+				if (Character.isLetter(current)) {
+					if (Character.isUpperCase(current) || (i == 0)) {// || first to make sure the first letter is capitalized
+						if (i != 0)
+							sb.append(' ');
+						sb.append(Character.toUpperCase(current));
+					} else {
+						sb.append(current);
+					}
+				} else {// Must be something else. Maybe a digit?
+					sb.append(current);// So just assign it
+				}
+			}
 
-		return sb.toString();
-	}*/
-
-	private static void addAmountHelper(StringBuilder sb, int amount, String[] kind) {
-		sb.append(amount);
-		sb.append(' ');
-		if (amount == 1) {
-			sb.append(kind[0]);// singular
-		} else {
-			sb.append(kind[1]);// plural
+			return sb.toString();
 		}
 	}
 

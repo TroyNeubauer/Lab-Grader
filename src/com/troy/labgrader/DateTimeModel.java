@@ -1,7 +1,7 @@
 package com.troy.labgrader;
 
 import java.beans.*;
-import java.time.LocalDate;
+import org.joda.time.LocalDate;
 import java.util.*;
 
 import javax.swing.event.*;
@@ -32,14 +32,14 @@ public class DateTimeModel implements DateModel<LocalDate> {
 
 	@Override
 	public int getMonth() {
-		return date.getMonthValue() - 1;
+		return date.getMonthOfYear() - 1;
 	}
 
 	@Override
 	public void setMonth(int month) {
 		int oldMonthValue = getMonth();
 		LocalDate oldValue = getValue();
-		this.date = LocalDate.of(date.getYear(), month + 1, date.getDayOfMonth());
+		this.date = new LocalDate(date.getYear(), month + 1, date.getDayOfMonth());
 		fireChangeEvent();
 		firePropertyChange("month", oldMonthValue, getMonth());
 		firePropertyChange("value", oldValue, getValue());
@@ -54,7 +54,7 @@ public class DateTimeModel implements DateModel<LocalDate> {
 	public void setYear(int year) {
 		int oldYearValue = getYear();
 		LocalDate oldValue = getValue();
-		this.date = LocalDate.of(year, date.getMonth(), date.getDayOfMonth());
+		this.date = new LocalDate(year, date.getMonthOfYear(), date.getDayOfMonth());
 		fireChangeEvent();
 		firePropertyChange("year", oldYearValue, getYear());
 		firePropertyChange("value", oldValue, getValue());
@@ -66,7 +66,7 @@ public class DateTimeModel implements DateModel<LocalDate> {
 		int oldMonthValue = getMonth();
 		int oldDayValue = getDay();
 		LocalDate oldValue = getValue();
-		this.date = LocalDate.of(year, month, day);
+		this.date = new LocalDate(year, month, day);
 		fireChangeEvent();
 		firePropertyChange("year", oldYearValue, getYear());
 		firePropertyChange("month", oldMonthValue, getMonth());

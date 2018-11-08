@@ -1,9 +1,8 @@
 package com.troy.labgrader.ui;
 
-import java.awt.FlowLayout;
-import java.awt.event.*;
+import java.awt.*;
 import java.io.File;
-import java.util.List;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -16,8 +15,7 @@ public class StudentListViewer extends JPanel {
 	private FieldTabel<Student> tabel;
 
 	public StudentListViewer(StudentList list) {
-		BoxLayout boxLayout = new BoxLayout(this, BoxLayout.Y_AXIS);
-		setLayout(boxLayout);
+		super(new BorderLayout());
 		this.list = list;
 		this.tabel = new FieldTabel<Student>(list.getStudents(), Student.class);
 		JPanel addPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -34,7 +32,7 @@ public class StudentListViewer extends JPanel {
 			if (p == Utils.INVALID_STRING) {
 				JOptionPane.showMessageDialog(this, "You must specify a numerical peroid");
 			} else if (n.isEmpty()) {
-				JOptionPane.showMessageDialog(this, "You must specify a name peroid");
+				JOptionPane.showMessageDialog(this, "You must specify a name");
 			} else if (e.isEmpty()) {
 				JOptionPane.showMessageDialog(this, "You must specify an email");
 			} else if (sID == Utils.INVALID_STRING) {
@@ -58,8 +56,8 @@ public class StudentListViewer extends JPanel {
 		addPanel.add(id);
 
 		addPanel.add(add);
-		add(addPanel);
-		add(new JScrollPane(new JTable(tabel)));
+		add(addPanel, BorderLayout.NORTH);
+		add(new JScrollPane(new JTable(tabel)), BorderLayout.CENTER);
 
 		JPanel bottomPanel = new JPanel();
 		JButton export = new JButton("Export to Excel");
@@ -84,7 +82,7 @@ public class StudentListViewer extends JPanel {
 			File file = chooser.getSelectedFile();
 			if (file == null)
 				return;
-			List<Student> data = FieldTabel.importFromExcel(file, Student.class);
+			ArrayList<Student> data = FieldTabel.importFromExcel(file, Student.class);
 			this.tabel.setData(data);
 			list.setStudents(data);
 		});
@@ -92,15 +90,8 @@ public class StudentListViewer extends JPanel {
 		bottomPanel.add(export);
 		bottomPanel.add(import1);
 
-		add(bottomPanel);
+		add(bottomPanel, BorderLayout.SOUTH);
 
-		addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				save();
-				System.out.println("Lost");
-			}
-		});
 		if (list.getStudents().size() > 0) {
 			setTabelFromList(list);
 		}
@@ -108,10 +99,6 @@ public class StudentListViewer extends JPanel {
 
 	private void setTabelFromList(StudentList list) {
 		this.list = list;
-
-	}
-
-	private void save() {
 
 	}
 
