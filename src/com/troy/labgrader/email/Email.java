@@ -6,24 +6,34 @@ import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 
-import org.apache.commons.io.*;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.*;
+import org.joda.time.LocalDateTime;
 
 import com.troy.labgrader.FileUtils;
 
 public class Email {
 	private static Logger logger = LogManager.getLogger();
 
+	private String from, subject;
 	private Message message;
 	private String body;
 	private List<MimeBodyPart> attachments;
+	private LocalDateTime timeRecieved;
 	private long id;
 
-	private Email(Message message, String body, List<MimeBodyPart> attachments) {
+	private Email(Message message, String body, List<MimeBodyPart> attachments, LocalDateTime timeRecieved) {
 		this.message = message;
 		this.body = body;
 		this.attachments = attachments;
 		this.id = FileUtils.getAndIncrementNumberOfEmails();
+		this.timeRecieved = timeRecieved;
+		try {
+			this.from = EmailUtils.getEmail(message.getFrom()[0]);
+			this.subject = message.getSubject();
+		} catch (MessagingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public String getText() {
@@ -52,6 +62,12 @@ public class Email {
 	public static Email fromMessage(Message message) {
 		String body;
 		List<MimeBodyPart> attachments = new ArrayList<MimeBodyPart>();
+		Date recievedDate;
+		try {
+			recievedDate = message.getReceivedDate();
+		} catch (MessagingException e1) {
+			throw new RuntimeException(e1);
+		}
 		try {
 			String contentType = message.getContentType();
 
@@ -82,7 +98,7 @@ public class Email {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		return new Email(message, body, attachments);
+		return new Email(message, body, attachments, new LocalDateTime(recievedDate));
 	}
 
 	public void reply(String body, boolean delete) {
@@ -100,8 +116,31 @@ public class Email {
 	public Message getMessage() {
 		return message;
 	}
-	
+
+	public String getSubject() {
+		return subject;
+	}
+
+	public String getFrom() {
+		return from;
+	}
+
+	public String getBody() {
+		return body;
+	}
+
 	public long getId() {
 		return id;
+	}
+
+	public void makeDefault() {
+		body = "Test body!!!\n#period=5\n\n#first_name=TroY\n#last_name=Neubauer\ncan you figure it out?";
+		from = "troyneubauer@gmail.com";
+		subject = "lab";
+		timeRecieved = LocalDateTime.now();
+	}
+	
+	public LocalDateTime getTimeRecieved() {
+		return timeRecieved;
 	}
 }

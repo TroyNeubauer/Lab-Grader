@@ -56,8 +56,8 @@ public class LabGraderFileViewer extends JPanel {
 	}
 
 	public void close() {
-		for(int i = 0; i < pane.getTabCount(); i++) {
-			if(pane.getComponentAt(i) instanceof YearViewer) {
+		for (int i = 0; i < pane.getTabCount(); i++) {
+			if (pane.getComponentAt(i) instanceof YearViewer) {
 				((YearViewer) pane.getComponentAt(i)).onClose();
 			}
 		}

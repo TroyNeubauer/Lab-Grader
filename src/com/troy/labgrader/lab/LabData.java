@@ -104,7 +104,11 @@ public class LabData {
 	}
 
 	public void periodsUpdated(Course course, Year year) {
-		
+
+	}
+
+	public boolean isOpen(LocalDateTime now) {
+		return now.isAfter(open) && now.isBefore(close);
 	}
 
 }

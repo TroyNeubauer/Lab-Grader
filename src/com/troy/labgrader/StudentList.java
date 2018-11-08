@@ -29,12 +29,12 @@ public class StudentList implements Iterable<Student> {
 		return -1;
 	}
 
-	public int getPeriodWithEmail(String email) {
+	public Student getWithEmail(String email) {
 		for (Student s : students) {
 			if (s.hasEmail(email))
-				return s.getPeriod();
+				return s;
 		}
-		return -1;
+		return null;
 	}
 
 	public List<Student> getStudents() {

@@ -35,4 +35,11 @@ public class LabResults {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "LabResults: " + results;
+	}
+	
+	
+
 }

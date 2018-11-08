@@ -7,7 +7,7 @@ import java.nio.*;
 import java.util.*;
 
 import org.joda.time.*;
-import org.joda.time.format.*;
+import org.joda.time.format.PeriodFormat;
 
 import sun.misc.Unsafe;
 
@@ -782,8 +782,8 @@ public class MiscUtil {
 		Objects.requireNonNull(first);
 		Objects.requireNonNull(second);
 		Period p;
-		System.out.println("first " + first.toString(DateTimeFormat.mediumDateTime()));
-		System.out.println("second " + second.toString(DateTimeFormat.mediumDateTime()));
+		// System.out.println("first " + first.toString(DateTimeFormat.mediumDateTime()));
+		// System.out.println("second " + second.toString(DateTimeFormat.mediumDateTime()));
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {

@@ -35,6 +35,6 @@ public class EmailUtils {
 			}
 			return raw.substring(open + 1, close);
 		}
-		return raw;
+		return raw.trim();
 	}
 }

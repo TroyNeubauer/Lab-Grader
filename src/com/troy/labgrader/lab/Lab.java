@@ -28,4 +28,10 @@ public class Lab {
 	public void periodsUpdated(Course course, Year year) {
 		results.periodsUpdated(course, year);
 	}
+
+	@Override
+	public String toString() {
+		return "Lab [data=" + data + ", results=" + results + "]";
+	}
+	
 }

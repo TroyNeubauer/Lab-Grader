@@ -1,21 +1,33 @@
 package com.troy.labgrader;
 
 import java.io.File;
+import java.util.*;
 
 import javax.swing.*;
 
-import org.joda.time.LocalDateTime;
-
-import com.troy.labgrader.lab.LabGraderFile;
+import com.troy.labgrader.email.Email;
+import com.troy.labgrader.lab.*;
 import com.troy.labgrader.ui.*;
 
 public class Main {
 
 	public static Window window;
 
-	public static void main(String[] args) {
-		
+	public static void main(String[] args) throws InstantiationException {
 
+		LabGraderFile f = new LabGraderFile(new File("C:\\Users\\Troy Neubauer\\Documents\\test.troygrade"));
+		List<Lab> labs = new ArrayList<Lab>();
+		for (Year year : f.getYears()) {
+			for (Course course : year.getCourses()) {
+				for (Lab l : course.getLabs()) {
+					labs.add(l);
+				}
+			}
+		}
+		Email email = (Email) MiscUtil.getUnsafe().allocateInstance(Email.class);
+		email.makeDefault();
+		EmailDecoder.narrowDownLab(f.getYears().get(0), labs, f.getYears().get(0).getStudents(), email);
+		System.exit(0);
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {

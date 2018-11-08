@@ -16,8 +16,8 @@ public class LabResultsViewer extends JPanel {
 
 	private JTextArea labInfo = new JTextArea(15, 25);
 	private DefaultListModel<LabResult> listModel = new DefaultListModel<LabResult>();
-	private JList<LabResult> list = new JList<LabResult>(listModel);
-	private Lab lab;
+	private final JList<LabResult> list = new JList<LabResult>(listModel);
+	private final Lab lab;
 	private CourseViewer parent;
 	private JScrollPane studentInfoScroll;
 
@@ -37,12 +37,14 @@ public class LabResultsViewer extends JPanel {
 			@Override
 			public Component getListCellRendererComponent(JList<? extends LabResult> list, LabResult value, int index, boolean isSelected, boolean cellHasFocus) {
 				JPanel panel = new JPanel();
+				panel.setBorder(BorderFactory.createEtchedBorder());
 				panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 				Student student = students.getStudentWithID(value.id);
-				if (student == null)
-					panel.add(new JLabel("Invalid Student ID " + value.id));
-				else {
-					panel.add(new JLabel(student.getName() + " via " + student.getEmail1()));
+				if (student == null) {
+					student = parent.getYearViewer().getYear().getStudents().getStudentWithID(value.id);
+					panel.add(new JLabel("Student not in course " + parent.getCourse().getName() + " : " + student.getName()));
+				} else {
+					panel.add(new JLabel(student.getName() + " via " + value.fromEmail));
 					panel.add(new JLabel(MiscUtil.toProperEnglishName(value.runStatus.toString())));
 				}
 				if (isSelected)
@@ -105,6 +107,7 @@ public class LabResultsViewer extends JPanel {
 	}
 
 	public void updateInfoPanel() {
+		list.invalidate();
 		JPanel studentInfo = new JPanel();
 		studentInfo.setBorder(BorderFactory.createTitledBorder("Submission Information"));
 		studentInfo.setLayout(new BoxLayout(studentInfo, BoxLayout.Y_AXIS));
