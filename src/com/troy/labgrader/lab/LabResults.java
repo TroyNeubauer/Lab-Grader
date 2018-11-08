@@ -23,7 +23,7 @@ public class LabResults {
 		results = hashMap;
 	}
 
-	public void periodsUpdated(Course course, Year year) {
+	public void periodsUpdated(MyCourse course, Year year) {
 		StudentList remainingStudents = course.getStudentsInCourse();
 		for(Integer entry : results.keySet()) {//Loop through every student's ID
 			remainingStudents.removeId(entry);

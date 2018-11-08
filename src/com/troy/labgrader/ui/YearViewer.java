@@ -24,7 +24,7 @@ public class YearViewer extends JPanel {
 		bottom.setMaximumSize(new Dimension(10000, 100));
 
 		pane.setBorder(BorderFactory.createTitledBorder("Courses"));
-		for (Course c : year.getCourses()) {
+		for (MyCourse c : year.getCourses()) {
 			addCourse(c, false);
 		}
 		int selectedItem = year.getSelectedTab();
@@ -51,7 +51,7 @@ public class YearViewer extends JPanel {
 		viewer.getPane().setTitleAt(viewer.getPane().getSelectedIndex(), name);
 	}
 
-	public void addCourse(Course course, boolean add) {
+	public void addCourse(MyCourse course, boolean add) {
 		if (add)
 			year.getCourses().add(course);
 		pane.addTab(course.getName(), new CourseViewer(course, this));
@@ -59,14 +59,14 @@ public class YearViewer extends JPanel {
 
 	private void showNewCourseDialog() {
 		String name = Utils.getUserString(this, "Enter new name for the new course", "Set Name", JOptionPane.INFORMATION_MESSAGE);
-		addCourse(new Course(name), true);
+		addCourse(new MyCourse(name), true);
 	}
 
 	public JTabbedPane getPane() {
 		return pane;
 	}
 
-	public void removeCourse(Course course) {
+	public void removeCourse(MyCourse course) {
 		year.getCourses().remove(course);
 		pane.removeTabAt(pane.getSelectedIndex());
 

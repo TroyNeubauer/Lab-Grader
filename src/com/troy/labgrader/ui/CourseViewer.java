@@ -13,12 +13,12 @@ import com.troy.labgrader.lab.*;
 
 public class CourseViewer extends JPanel {
 
-	private final Course course;
+	private final MyCourse course;
 	private YearViewer parent;
 	private JTabbedPane pane;
 	private JLabel evaluatedPeriods = new JLabel("");
 
-	public CourseViewer(Course course, YearViewer parent) {
+	public CourseViewer(MyCourse course, YearViewer parent) {
 		super(new BorderLayout());
 		this.course = course;
 		this.parent = parent;
@@ -85,7 +85,7 @@ public class CourseViewer extends JPanel {
 			}
 		});
 		String periodsText = "";
-		for (int peroid : course.getPeroids()) {
+		for (int peroid : course.getClasses().keySet()) {
 			periodsText += peroid;
 			periodsText += ',';
 		}
@@ -150,7 +150,7 @@ public class CourseViewer extends JPanel {
 		return course.getStudentsInCourse(parent.getYear());
 	}
 
-	public Course getCourse() {
+	public MyCourse getCourse() {
 		return course;
 	}
 

@@ -25,7 +25,7 @@ public class Lab {
 		this.results = results;
 	}
 
-	public void periodsUpdated(Course course, Year year) {
+	public void periodsUpdated(MyCourse course, Year year) {
 		results.periodsUpdated(course, year);
 	}
 

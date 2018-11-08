@@ -6,21 +6,21 @@ import com.troy.labgrader.StudentList;
 
 public class Year {
 
-	private List<Course> courses;
+	private List<MyCourse> courses;
 	private StudentList students = new StudentList();
 	private String name;
 	private int selectedTab = -1;//-1 for invalid, [0,students.size()) to indicate selected course index
 
-	public Year(List<Course> courses, String name) {
+	public Year(List<MyCourse> courses, String name) {
 		this.courses = courses;
 		this.name = name;
 	}
 
-	public List<Course> getCourses() {
+	public List<MyCourse> getCourses() {
 		return courses;
 	}
 
-	public void setCourses(List<Course> courses) {
+	public void setCourses(List<MyCourse> courses) {
 		this.courses = courses;
 	}
 	

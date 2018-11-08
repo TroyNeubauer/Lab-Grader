@@ -4,12 +4,12 @@ import java.util.*;
 
 import com.troy.labgrader.StudentList;
 
-public class Course {
+public class MyCourse {
 	private Map<Integer, StudentList> classes;
 	private List<Lab> labs;
 	private String name;
 
-	public Course(String name) {
+	public MyCourse(String name) {
 		this.name = name;
 		this.labs = new ArrayList<Lab>();
 		this.classes = new HashMap<Integer, StudentList>();

@@ -103,7 +103,7 @@ public class LabData {
 		this.close = close;
 	}
 
-	public void periodsUpdated(Course course, Year year) {
+	public void periodsUpdated(MyCourse course, Year year) {
 
 	}
 

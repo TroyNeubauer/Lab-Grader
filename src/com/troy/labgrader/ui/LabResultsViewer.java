@@ -174,7 +174,7 @@ public class LabResultsViewer extends JPanel {
 		labInfo.setText(sb.toString());
 	}
 
-	public void periodsUpdated(Year year, Course course) {
+	public void periodsUpdated(Year year, MyCourse course) {
 		updateStudents();
 		updateLabData();
 	}
