@@ -1,7 +1,7 @@
 package com.troy.labgrader.ui;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
+import org.joda.time.LocalTime;
 import java.util.*;
 
 import javax.swing.JComboBox;
@@ -18,7 +18,7 @@ public class JTimePicker extends JComboBox<String> {
 		SimpleDateFormat format = new SimpleDateFormat("hh:mm aa");
 		for (int totalMin = minMinute + minHour * 60; totalMin < maxHour * 60 + maxMinute; totalMin += minuteIncrement) {
 			String time = format.format(toCalendar(totalMin).getTime());
-			times.put(time, LocalTime.of(totalMin / 60, totalMin % 60));
+			times.put(time, new LocalTime(totalMin / 60, totalMin % 60));
 			addItem(time);
 		}
 	}
@@ -42,11 +42,11 @@ public class JTimePicker extends JComboBox<String> {
 
 	public void setToNow() {
 		LocalTime date = LocalTime.now();
-		setTo(date.getHour(), date.getMinute());
+		setTo(date.getHourOfDay(), date.getMinuteOfHour());
 	}
 
 	public void setTo(int hours, int mins) {
-		LocalTime toHit = LocalTime.of(hours, mins);
+		LocalTime toHit = new LocalTime(hours, mins);
 		boolean found = false;
 		for (int i = 0; i < getItemCount() - 1; i++) {
 			LocalTime currentTime = times.get(getItemAt(i));
@@ -64,6 +64,6 @@ public class JTimePicker extends JComboBox<String> {
 	}
 
 	public void setTime(LocalTime time) {
-		setTo(time.getHour(), time.getMinute());
+		setTo(time.getHourOfDay(), time.getMinuteOfHour());
 	}
 }

@@ -1,17 +1,15 @@
 package com.troy.labgrader.ui;
 
-import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 
 import org.jdatepicker.impl.*;
+import org.joda.time.*;
+import org.joda.time.format.DateTimeFormat;
 
 import com.troy.labgrader.DateTimeModel;
 
 public class MyJDatePicker extends JDatePickerImpl {
 	private static final Properties DEFAULT_PROPS;
-
-	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/uu");
 
 	static {
 		DEFAULT_PROPS = new Properties();
@@ -23,7 +21,7 @@ public class MyJDatePicker extends JDatePickerImpl {
 	public MyJDatePicker() {
 		super(new JDatePanelImpl(new DateTimeModel(), DEFAULT_PROPS), null);// 11/26/2018
 		getModel().addChangeListener((e) -> {
-			super.getJFormattedTextField().setText(getModel().getValue().format(formatter));
+			super.getJFormattedTextField().setText(getModel().getValue().toString(DateTimeFormat.mediumDate()));
 		});
 	}
 
@@ -32,7 +30,8 @@ public class MyJDatePicker extends JDatePickerImpl {
 	}
 
 	public LocalDateTime getDate(LocalTime time) {
-		return time.atDate(getDate());
+		return getDate().toDateTime(time).toLocalDateTime();
+
 	}
 
 	public void setDate(LocalDate dateTime) {
