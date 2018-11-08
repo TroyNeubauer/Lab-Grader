@@ -203,12 +203,12 @@ public class FieldTabel<T> implements TableModel {
 		fireEvent(new TableModelEvent(this, data.size() - 1, data.size(), 0, TableModelEvent.INSERT));
 	}
 
-	public static <T> List<T> importFromExcel(File file, Class<T> type) {
+	public static <T> ArrayList<T> importFromExcel(File file, Class<T> type) {
 		return importFromExcel(file, 0, type);
 	}
 
-	public static <T> List<T> importFromExcel(File file, int sheetNumber, Class<T> type) {
-		List<T> list = new ArrayList<T>();
+	public static <T> ArrayList<T> importFromExcel(File file, int sheetNumber, Class<T> type) {
+		ArrayList<T> list = new ArrayList<T>();
 		FileInputStream stream;
 		XSSFWorkbook workbook = null;
 

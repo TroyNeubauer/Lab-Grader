@@ -1,10 +1,14 @@
 package com.troy.labgrader.ui;
 
 import java.awt.*;
+import java.lang.instrument.Instrumentation;
+import java.util.ArrayList;
 
 import javax.swing.*;
+import javax.swing.event.*;
+import javax.tools.ToolProvider;
 
-import com.troy.labgrader.Utils;
+import com.troy.labgrader.*;
 import com.troy.labgrader.lab.*;
 
 public class CourseViewer extends JPanel {
@@ -12,6 +16,7 @@ public class CourseViewer extends JPanel {
 	private final Course course;
 	private YearViewer parent;
 	private JTabbedPane pane;
+	private JLabel evaluatedPeriods = new JLabel("");
 
 	public CourseViewer(Course course, YearViewer parent) {
 		super(new BorderLayout());
@@ -27,6 +32,65 @@ public class CourseViewer extends JPanel {
 			setCourseName(s);
 		});
 		bottom.add(editName);
+
+		JTextField periods = new JTextField(null, null, 20);
+		bottom.add(new JLabel("Periods that this course is taught during eg. \"1,2,4,7\""));
+		bottom.add(periods);
+		periods.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				update();
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				update();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				update();
+			}
+
+			private void update() {
+				String[] parts = periods.getText().split(",");
+				ArrayList<Integer> origional = new ArrayList<Integer>(course.getPeroids());
+				course.getPeroids().clear();
+				String otherText = "Periods are: ";
+				for (String part : parts) {
+					if (!part.isEmpty()) {
+						part = part.trim();
+						try {
+							int value = Integer.parseInt(part);
+							course.getPeroids().add(value);
+							otherText += value;
+							otherText += ", ";
+						} catch (Exception ignore) {
+						}
+					}
+				}
+				if (origional.equals(course.getPeroids())) {
+					System.out.println("skipping");
+					return;
+				}
+				course.periodsUpdated(parent.getYear());
+				for (int i = 0; i < pane.getTabCount(); i++) {
+					LabViewer viewer = (LabViewer) pane.getComponent(i);
+					if (viewer == null)
+						continue;
+					viewer.periodsUpdated(parent.getYear());
+				}
+				evaluatedPeriods.setText(otherText);
+			}
+		});
+		String periodsText = "";
+		for (int peroid : course.getPeroids()) {
+			periodsText += peroid;
+			periodsText += ',';
+		}
+		bottom.add(evaluatedPeriods);
+		periods.setText(periodsText);
 
 		JButton deleteCourse = new JButton("Delete Course");
 		deleteCourse.addActionListener((e) -> {
@@ -45,6 +109,7 @@ public class CourseViewer extends JPanel {
 			}).start();
 		});
 		bottom.add(newLab);
+
 		add(bottom, BorderLayout.SOUTH);
 		add(pane, BorderLayout.CENTER);
 
@@ -56,7 +121,7 @@ public class CourseViewer extends JPanel {
 	private void addLab(Lab lab, boolean toFile) {
 		if (toFile)
 			course.getLabs().add(lab);
-		pane.addTab(lab.getData().getName(), new LabViewer(lab, this));
+		SwingUtilities.invokeLater(() -> pane.addTab(lab.getData().getName(), new LabViewer(lab, this)));
 	}
 
 	protected void setCourseName(String name) {
@@ -69,10 +134,32 @@ public class CourseViewer extends JPanel {
 			Component raw = pane.getComponent(i);
 			if (raw instanceof LabViewer) {
 				LabViewer editor = (LabViewer) raw;
-				if (editor.getLab().equals(lab)) {
+				if (editor.getLab().getData().equals(lab)) {
 					pane.setTitleAt(i, text);
 					break;
 				}
+			}
+		}
+	}
+
+	public YearViewer getYearViewer() {
+		return parent;
+	}
+
+	public StudentList getStudentsInCourse() {
+		return course.getStudentsInCourse(parent.getYear());
+	}
+
+	public Course getCourse() {
+		return course;
+	}
+
+	public void updateLabData() {
+		for (int i = 0; i < pane.getTabCount(); i++) {
+			Component raw = pane.getComponent(i);
+			if (raw instanceof LabViewer) {
+				LabViewer editor = (LabViewer) raw;
+				editor.updateLabData();
 			}
 		}
 	}

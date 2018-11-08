@@ -4,16 +4,16 @@ import java.util.*;
 
 import com.troy.labgrader.email.Student;
 
-public class StudentList {
+public class StudentList implements Iterable<Student> {
 
 	// Maps period numbers to a mapping between student name and student email
-	private List<Student> students;
+	private ArrayList<Student> students;
 
 	public StudentList() {
 		students = new ArrayList();
 	}
 
-	public StudentList(List<Student> students) {
+	public StudentList(ArrayList<Student> students) {
 		this.students = students;
 	}
 
@@ -41,7 +41,29 @@ public class StudentList {
 		return students;
 	}
 
-	public void setStudents(List<Student> data) {
+	public void setStudents(ArrayList<Student> data) {
 		this.students = data;
+	}
+
+	public Student getStudentWithID(int id) {
+		for (Student s : students) {
+			if (s.getId() == id)
+				return s;
+		}
+		return null;
+	}
+
+	@Override
+	public Iterator<Student> iterator() {
+		return students.iterator();
+	}
+
+	public void removeId(int id) {
+		Iterator<Student> i = students.iterator();
+		while (i.hasNext()) {
+			if (i.next().getId() == id) {
+				i.remove();
+			}
+		}
 	}
 }
