@@ -4,10 +4,6 @@ public class Lab {
 	private LabData data;
 	private LabResults results;
 
-	public Lab(LabData data) {
-		this.data = data;
-	}
-
 	public Lab(LabData data, LabResults results) {
 		this.data = data;
 		this.results = results;
@@ -29,8 +25,7 @@ public class Lab {
 		this.results = results;
 	}
 
-	public boolean hasResults() {
-		return results != null;
+	public void periodsUpdated(Course course, Year year) {
+		results.periodsUpdated(course, year);
 	}
-
 }

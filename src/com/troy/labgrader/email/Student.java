@@ -100,4 +100,11 @@ public class Student {
 		return email.equals(email1) || email.equals(email2) || email.equals(email3) || email.equals(email4) || email.equals(email5);
 	}
 
+	@Override
+	public String toString() {
+		return "Student [name=" + name + ", id=" + id + ", period=" + period + ", email1=" + email1 + ", email2=" + email2 + ", email3=" + email3 + ", email4=" + email4 + ", email5=" + email5 + "]";
+	}
+	
+	
+
 }
