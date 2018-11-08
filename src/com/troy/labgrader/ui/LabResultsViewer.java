@@ -9,7 +9,6 @@ import javax.swing.*;
 import org.joda.time.LocalDateTime;
 
 import com.troy.labgrader.*;
-import com.troy.labgrader.email.Student;
 import com.troy.labgrader.lab.*;
 
 public class LabResultsViewer extends JPanel {

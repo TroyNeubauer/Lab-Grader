@@ -2,7 +2,7 @@ package com.troy.labgrader;
 
 import java.util.*;
 
-import com.troy.labgrader.email.Student;
+import com.troy.labgrader.lab.Student;
 
 public class StudentList implements Iterable<Student> {
 
@@ -17,24 +17,8 @@ public class StudentList implements Iterable<Student> {
 		this.students = students;
 	}
 
-	public void addStudent(int periodNumber, String name, String email, int id) {
-		students.add(new Student(name, id, periodNumber, email));
-	}
-
-	public int getPeriodWithName(String name) {
-		for (Student s : students) {
-			if (s.getName().equals(name))
-				return s.getPeriod();
-		}
-		return -1;
-	}
-
-	public Student getWithEmail(String email) {
-		for (Student s : students) {
-			if (s.hasEmail(email))
-				return s;
-		}
-		return null;
+	public void addStudent(String name, int id) {
+		students.add(new Student(name, id));
 	}
 
 	public List<Student> getStudents() {

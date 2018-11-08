@@ -10,7 +10,6 @@ import org.objenesis.strategy.InstantiatorStrategy;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.*;
-import com.troy.labgrader.email.*;
 
 public class FileUtils {
 
@@ -162,26 +161,6 @@ public class FileUtils {
 		return FileUtils.removeBannedCharacters(email);
 	}
 
-	public static DownloadedEmail saveEmail(Email email) {
-		try {
-			File file = new File(APPDATA_STORAGE_FOLDER, Long.toString(email.getId(), Character.MAX_RADIX));
-			File[] attachments = email.downloadAttachments(new File(file, DownloadedEmail.ATTACHMENTS_FOLDER_NAME));
-
-			Message message = email.getMessage();
-
-			String[] from = new String[email.getMessage().getFrom().length];
-			for (int i = 0; i < email.getMessage().getFrom().length; i++) {
-				from[i] = email.getMessage().getFrom()[i].toString();
-			}
-			String subject = message.getSubject();
-			long messageTime = email.getMessage().getReceivedDate().getTime() / 1000;
-
-			return DownloadedEmail.save(new File(file, DownloadedEmail.INFO_FILE_NAME), from, messageTime, subject, attachments);
-		} catch (MessagingException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	public static void write(File file, Object data) {
 		try {
 			FileOutputStream stream = new FileOutputStream(file);
@@ -190,7 +169,6 @@ public class FileUtils {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	public static void write(OutputStream stream, Object data) {

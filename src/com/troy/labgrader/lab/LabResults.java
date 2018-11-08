@@ -3,7 +3,6 @@ package com.troy.labgrader.lab;
 import java.util.*;
 
 import com.troy.labgrader.StudentList;
-import com.troy.labgrader.email.Student;
 
 public class LabResults {
 	private HashMap<Integer, LabResult> results = new HashMap<Integer, LabResult>();// Maps student ID to lab result
@@ -25,7 +24,7 @@ public class LabResults {
 	}
 
 	public void periodsUpdated(Course course, Year year) {
-		StudentList remainingStudents = course.getStudentsInCourse(year);
+		StudentList remainingStudents = course.getStudentsInCourse();
 		for(Integer entry : results.keySet()) {//Loop through every student's ID
 			remainingStudents.removeId(entry);
 		}

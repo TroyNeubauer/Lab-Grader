@@ -3,25 +3,24 @@ package com.troy.labgrader.lab;
 import java.util.*;
 
 import com.troy.labgrader.StudentList;
-import com.troy.labgrader.email.Student;
 
 public class Course {
-	private List<Integer> peroids;
+	private Map<Integer, StudentList> classes;
 	private List<Lab> labs;
 	private String name;
 
 	public Course(String name) {
 		this.name = name;
 		this.labs = new ArrayList<Lab>();
-		this.peroids = new ArrayList<Integer>();
+		this.classes = new HashMap<Integer, StudentList>();
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public List<Integer> getPeroids() {
-		return peroids;
+	public Map<Integer, StudentList> getClasses() {
+		return classes;
 	}
 
 	public List<Lab> getLabs() {
@@ -42,17 +41,9 @@ public class Course {
 		}
 	}
 
-	public StudentList getStudentsInCourse(Year year) {
-		ArrayList<Student> list = new ArrayList<Student>();
-		for (Student student : year.getStudents()) {
-			for (int peroid : peroids) {
-				if (student.getPeriod() == peroid) {
-					list.add(student);
-					break;
-				}
-			}
-		}
-		return new StudentList(list);
+	public StudentList getStudentsInCourse() {
+		
+		return null;
 	}
 
 }

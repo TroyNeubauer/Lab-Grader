@@ -9,7 +9,7 @@ public class Year {
 	private List<Course> courses;
 	private StudentList students = new StudentList();
 	private String name;
-	private int selectedTab = -1;//-1 for student's list, [0,students.size()) to indicate selected course index
+	private int selectedTab = -1;//-1 for invalid, [0,students.size()) to indicate selected course index
 
 	public Year(List<Course> courses, String name) {
 		this.courses = courses;
