@@ -88,17 +88,14 @@ public class LabDataEditor extends JPanel {
 		name.setBounds(220, 31, 116, 22);
 		name.setColumns(10);
 		name.getDocument().addDocumentListener(new DocumentListener() {
-
 			@Override
 			public void removeUpdate(DocumentEvent e) {
 				update();
 			}
-
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				update();
 			}
-
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				update();
